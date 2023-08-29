@@ -1,0 +1,14 @@
+{
+  "name": "rust-libs",
+  "version": "0.1.0",
+  "files": [
+    "rust_libs_bg.wasm",
+    "rust_libs.js",
+    "rust_libs.d.ts"
+  ],
+  "module": "rust_libs.js",
+  "types": "rust_libs.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

@@ -1,0 +1,293 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend&display=swap');
+
+body {
+  margin: 0;
+  font-family: Lexend, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+#nav {
+  display: flex;
+  width: 600px;
+  margin: 0 auto;
+}
+
+#nav div {
+  width: 33%;
+  justify-content: space-between;
+  font-family: Lexend;
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 26px;
+  letter-spacing: 0em;
+  text-align: center;
+}
+
+.invisible {
+  display: none !important;
+}
+
+.activeNav {
+  border-bottom: 2px solid #3495A3;
+}
+
+h1 {
+  font-family: Lexend;
+  font-size: 68px;
+  font-weight: 500;
+  line-height: 74px;
+  letter-spacing: -0.03em;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+h2 {
+  font-family: Lexend;
+  font-size: 23px;
+  font-weight: 400;
+  line-height: 35px;
+  letter-spacing: 0em;
+  text-align: center;
+  margin-bottom: 100px;
+}
+label {
+  font-family: Lexend;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 20px;
+  letter-spacing: 0em;
+  text-align: left;
+  display: inline-block;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+button, input[type="submit"], input[type="reset"] {
+	background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+}
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #b5b5b5;
+  opacity: 1; /* Firefox */
+}
+
+input, textarea {
+  font-family: Lexend;
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0em;
+  margin-bottom: 10px;
+  background: #FFFFFF;
+  border: 1px solid #EAEAEA;
+  height: 54px;
+  padding-left: 10px;
+}
+
+.bitcoin-pubkey {
+  width: 100%;
+}
+
+#bond-spec {
+  width: 100%;
+  height: 5em;
+}
+
+.tx-hex {
+  width: 100%;
+  height: 5em;
+}
+
+.form-row {
+  display: flex;
+  width: 100%;
+}
+
+#left {
+  width: 45%;
+  display: flex;
+  justify-content: space-between;
+}
+
+#right {
+  width: 50%;
+}
+.form-group {
+  padding: 5px;
+  width: 45%;
+}
+
+.form-group input {
+  width: 100%;
+}
+
+#amt-hint {
+  color: #146C52;
+  padding-top: 60px;
+  padding-left: 20px;
+}
+#burn-explained {
+  color: #146C52;
+}
+.content {
+  width: 757px;
+  height: 320px;
+  background: linear-gradient(180deg, #F7F7F7 0%, rgba(247, 247, 247, 0) 100%);
+  margin: 0 auto;
+  padding-top: 20px;
+  padding-left: 300px;
+  padding-right: 300px;
+}
+
+#instructions {
+  width: 100%;
+  padding: 8px 22px 8px 22px;
+  border-radius: 4px;
+  gap: 4px;
+  margin: 0 auto;
+
+  background: #CAF5FB;
+}
+
+#instructions p {
+  font-family: Lexend;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 23px;
+  letter-spacing: 0em;
+  text-align: center;
+}
+
+#instructions img {
+  display: block;
+  margin: 0 auto;
+}
+
+#generate-btn {
+  background: #3495A3;
+  border-width: 0px;
+  color: #FFFFFF;
+
+  width: 254px;
+  height: 54px;
+  padding: 15px 13px 15px 13px;
+  border-radius: 4px;
+  gap: 8px;
+  opacity: 0.5px;
+
+  font-family: Lexend;
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0em;
+  text-align: center;
+
+  margin-top: 10px;
+}
+
+#addr {
+  text-align: center;
+  color: green;
+}
+
+#spec {
+  text-align: center;
+  color: green;
+}
+
+#newSpec {
+  font-family: Lexend;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 23px;
+  letter-spacing: 0em;
+  /*background: #CAF5FB;*/
+
+  width: 100%;
+  padding: 8px 22px 8px 22px;
+  border-radius: 4px;
+  gap: 4px;
+  margin: 0 auto;
+  overflow-wrap: anywhere;
+
+  display: none;
+}
+
+#send-tx-btn {
+  background: #3495A3;
+  border-width: 0px;
+  color: #FFFFFF;
+
+  width: 254px;
+  height: 54px;
+  padding: 15px 13px 15px 13px;
+  border-radius: 4px;
+  gap: 8px;
+  opacity: 0.5px;
+
+  font-family: Lexend;
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0em;
+  text-align: center;
+
+  margin: 0 auto;
+  margin-top: -15px;
+  display: block;
+}
+
+#thin-line {
+  width: 100%;
+  height: 2px;
+  background-color: #3495A3;
+  margin: 30px 0 0px 0;
+}
+.visible {
+  display: inherit !important;
+}
+
+.invisible {
+  display: none;
+}
+
+#spec-info {
+  margin-top: 40px;
+  font-size: 16px;
+}
+
+#burn-tx-holder {
+  width: 90%;
+  overflow-wrap: anywhere;
+  margin: 0 auto;
+  margin-top: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#burn-tx {
+  height: 100px;
+  overflow-y: auto;
+  padding: 5px;
+  border: 1px solid blue;
+}
+
+#burn-tx-holder button {
+  margin: 0 auto !important;
+  display: block;
+}
