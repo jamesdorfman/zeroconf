@@ -291,3 +291,7 @@ input, textarea {
   margin: 0 auto !important;
   display: block;
 }
+
+.error-input {
+  border: 1.5px solid red;
+}

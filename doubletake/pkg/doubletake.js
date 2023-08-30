@@ -372,7 +372,7 @@ export function create_elements_utxo(tx, vout) {
 * - `double_spend_tx`: the Bitcoin tx that was double spent
 * - `tx1_hex`: first double spend Bitcoin tx in hex
 * - `tx2_hex`: second double spend Bitcoin tx in hex
-* - `fee_rate_sat_per_vb`: the fee rate to use in satoshi per virtual byte
+* - `fee_rate_sat_per_vkb`: the fee rate to use in satoshi per virtual byte
 * - `reward_address`: the reward Elements/Liquid address where to send the reward
 *
 * Output: an Elements/Liquid transaction in hex
@@ -383,11 +383,11 @@ export function create_elements_utxo(tx, vout) {
 * @param {string} double_spend_tx
 * @param {string} tx1_hex
 * @param {string} tx2_hex
-* @param {bigint} fee_rate_sat_per_vb
+* @param {bigint} fee_rate_sat_per_vkb
 * @param {string} reward_address
 * @returns {string}
 */
-export function create_burn_tx(bond_utxo, bond_tx, spec_base64, double_spend_utxo, double_spend_tx, tx1_hex, tx2_hex, fee_rate_sat_per_vb, reward_address) {
+export function create_burn_tx(bond_utxo, bond_tx, spec_base64, double_spend_utxo, double_spend_tx, tx1_hex, tx2_hex, fee_rate_sat_per_vkb, reward_address) {
     let deferred10_0;
     let deferred10_1;
     try {
@@ -408,7 +408,7 @@ export function create_burn_tx(bond_utxo, bond_tx, spec_base64, double_spend_utx
         const len6 = WASM_VECTOR_LEN;
         const ptr7 = passStringToWasm0(reward_address, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len7 = WASM_VECTOR_LEN;
-        wasm.create_burn_tx(retptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4, ptr5, len5, ptr6, len6, fee_rate_sat_per_vb, ptr7, len7);
+        wasm.create_burn_tx(retptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4, ptr5, len5, ptr6, len6, fee_rate_sat_per_vkb, ptr7, len7);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         var r2 = getInt32Memory0()[retptr / 4 + 2];
@@ -429,26 +429,214 @@ export function create_burn_tx(bond_utxo, bond_tx, spec_base64, double_spend_utx
 }
 
 /**
-* Create a transaction to reclaim a bond after it has expired.
+* Create an unsigned transaction to reclaim a bond after it has expired.
 *
 * Input:
 * - `bond_utxo`: the Elements/Liquid UTXO outpoint, as `<txid>:<vout>`
 * - `bond_tx`: the raw hex bond transaction
 * - `spec_base64`: bond spec encoded as base64
-* - `fee_rate_sat_per_vb`: the fee rate to use in satoshi per virtual byte
-* - `reclaim_sk`: secret key of the reclaim pubkey in either WIF or hex
+* - `fee_rate_sat_per_vkb`: the fee rate to use in satoshi per virtual kilobyte
 * - `claim_address`: the claim Elements/Liquid address where to send the funds
 *
 * Output: an Elements/Liquid transaction in hex
 * @param {string} bond_utxo
 * @param {string} bond_tx
 * @param {string} spec_base64
-* @param {bigint} fee_rate_sat_per_vb
-* @param {string} reclaim_sk
+* @param {bigint} fee_rate_sat_per_vkb
 * @param {string} claim_address
 * @returns {string}
 */
-export function create_reclaim_tx(bond_utxo, bond_tx, spec_base64, fee_rate_sat_per_vb, reclaim_sk, claim_address) {
+export function create_unsigned_reclaim_tx(bond_utxo, bond_tx, spec_base64, fee_rate_sat_per_vkb, claim_address) {
+    let deferred6_0;
+    let deferred6_1;
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        const ptr0 = passStringToWasm0(bond_utxo, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(bond_tx, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(spec_base64, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ptr3 = passStringToWasm0(claim_address, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len3 = WASM_VECTOR_LEN;
+        wasm.create_unsigned_reclaim_tx(retptr, ptr0, len0, ptr1, len1, ptr2, len2, fee_rate_sat_per_vkb, ptr3, len3);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        var r3 = getInt32Memory0()[retptr / 4 + 3];
+        var ptr5 = r0;
+        var len5 = r1;
+        if (r3) {
+            ptr5 = 0; len5 = 0;
+            throw takeObject(r2);
+        }
+        deferred6_0 = ptr5;
+        deferred6_1 = len5;
+        return getStringFromWasm0(ptr5, len5);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        wasm.__wbindgen_free(deferred6_0, deferred6_1, 1);
+    }
+}
+
+/**
+* Finalize a reclaim transaction with an ECDSA signature.
+*
+* Input:
+* - `spec_base64`: bond spec encoded as base64
+* - `reclaim_tx`: the hex unsigned reclaim tx
+* - `signature`: the ECDSA signature of the tx by the reclaim private key
+*
+* Output: an Elements/Liquid transaction in hex
+* @param {string} spec_base64
+* @param {string} reclaim_tx
+* @param {string} signature
+* @returns {string}
+*/
+export function finalize_ecdsa_reclaim_tx(spec_base64, reclaim_tx, signature) {
+    let deferred5_0;
+    let deferred5_1;
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        const ptr0 = passStringToWasm0(spec_base64, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(reclaim_tx, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(signature, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        wasm.finalize_ecdsa_reclaim_tx(retptr, ptr0, len0, ptr1, len1, ptr2, len2);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        var r3 = getInt32Memory0()[retptr / 4 + 3];
+        var ptr4 = r0;
+        var len4 = r1;
+        if (r3) {
+            ptr4 = 0; len4 = 0;
+            throw takeObject(r2);
+        }
+        deferred5_0 = ptr4;
+        deferred5_1 = len4;
+        return getStringFromWasm0(ptr4, len4);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        wasm.__wbindgen_free(deferred5_0, deferred5_1, 1);
+    }
+}
+
+/**
+* Create a PSET to reclaim a bond after it has expired.
+*
+* Input:
+* - `bond_utxo`: the Elements/Liquid UTXO outpoint, as `<txid>:<vout>`
+* - `bond_tx`: the raw hex bond transaction
+* - `spec_base64`: bond spec encoded as base64
+* - `fee_rate_sat_per_vb`: the fee rate to use in satoshi per virtual byte
+* - `claim_address`: the claim Elements/Liquid address where to send the funds
+*
+* Output: a PartiallySignedElementsTransaction in base64
+* @param {string} bond_utxo
+* @param {string} bond_tx
+* @param {string} spec_base64
+* @param {bigint} fee_rate_sat_per_vb
+* @param {string} claim_address
+* @returns {string}
+*/
+export function create_reclaim_pset(bond_utxo, bond_tx, spec_base64, fee_rate_sat_per_vb, claim_address) {
+    let deferred6_0;
+    let deferred6_1;
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        const ptr0 = passStringToWasm0(bond_utxo, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(bond_tx, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(spec_base64, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ptr3 = passStringToWasm0(claim_address, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len3 = WASM_VECTOR_LEN;
+        wasm.create_reclaim_pset(retptr, ptr0, len0, ptr1, len1, ptr2, len2, fee_rate_sat_per_vb, ptr3, len3);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        var r3 = getInt32Memory0()[retptr / 4 + 3];
+        var ptr5 = r0;
+        var len5 = r1;
+        if (r3) {
+            ptr5 = 0; len5 = 0;
+            throw takeObject(r2);
+        }
+        deferred6_0 = ptr5;
+        deferred6_1 = len5;
+        return getStringFromWasm0(ptr5, len5);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        wasm.__wbindgen_free(deferred6_0, deferred6_1, 1);
+    }
+}
+
+/**
+* Finalize a reclaim PSET.
+*
+* Input:
+* - `spec_base64`: bond spec encoded as base64
+* - `reclaim_pset`: the base64 reclaim PSET
+*
+* Output: an Elements/Liquid transaction in hex
+* @param {string} spec_base64
+* @param {string} reclaim_pset
+* @returns {string}
+*/
+export function finalize_reclaim_pset(spec_base64, reclaim_pset) {
+    let deferred4_0;
+    let deferred4_1;
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        const ptr0 = passStringToWasm0(spec_base64, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(reclaim_pset, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        wasm.finalize_reclaim_pset(retptr, ptr0, len0, ptr1, len1);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        var r3 = getInt32Memory0()[retptr / 4 + 3];
+        var ptr3 = r0;
+        var len3 = r1;
+        if (r3) {
+            ptr3 = 0; len3 = 0;
+            throw takeObject(r2);
+        }
+        deferred4_0 = ptr3;
+        deferred4_1 = len3;
+        return getStringFromWasm0(ptr3, len3);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
+    }
+}
+
+/**
+* Create a signed transaction to reclaim a bond after it has expired.
+*
+* Input:
+* - `bond_utxo`: the Elements/Liquid UTXO outpoint, as `<txid>:<vout>`
+* - `bond_tx`: the raw hex bond transaction
+* - `spec_base64`: bond spec encoded as base64
+* - `fee_rate_sat_per_vb`: the fee rate to use in satoshi per virtual byte
+* - `claim_address`: the claim Elements/Liquid address where to send the funds
+* - `reclaim_sk`: secret key of the reclaim pubkey in either WIF or hex
+*
+* Output: an Elements/Liquid transaction in hex
+* @param {string} bond_utxo
+* @param {string} bond_tx
+* @param {string} spec_base64
+* @param {bigint} fee_rate_sat_per_vb
+* @param {string} claim_address
+* @param {string} reclaim_sk
+* @returns {string}
+*/
+export function create_signed_ecdsa_reclaim_tx(bond_utxo, bond_tx, spec_base64, fee_rate_sat_per_vb, claim_address, reclaim_sk) {
     let deferred7_0;
     let deferred7_1;
     try {
@@ -459,11 +647,11 @@ export function create_reclaim_tx(bond_utxo, bond_tx, spec_base64, fee_rate_sat_
         const len1 = WASM_VECTOR_LEN;
         const ptr2 = passStringToWasm0(spec_base64, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len2 = WASM_VECTOR_LEN;
-        const ptr3 = passStringToWasm0(reclaim_sk, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const ptr3 = passStringToWasm0(claim_address, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len3 = WASM_VECTOR_LEN;
-        const ptr4 = passStringToWasm0(claim_address, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const ptr4 = passStringToWasm0(reclaim_sk, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len4 = WASM_VECTOR_LEN;
-        wasm.create_reclaim_tx(retptr, ptr0, len0, ptr1, len1, ptr2, len2, fee_rate_sat_per_vb, ptr3, len3, ptr4, len4);
+        wasm.create_signed_ecdsa_reclaim_tx(retptr, ptr0, len0, ptr1, len1, ptr2, len2, fee_rate_sat_per_vb, ptr3, len3, ptr4, len4);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         var r2 = getInt32Memory0()[retptr / 4 + 2];
@@ -528,6 +716,10 @@ function __wbg_get_imports() {
     imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
         takeObject(arg0);
     };
+    imports.wbg.__wbindgen_error_new = function(arg0, arg1) {
+        const ret = new Error(getStringFromWasm0(arg0, arg1));
+        return addHeapObject(ret);
+    };
     imports.wbg.__wbindgen_string_new = function(arg0, arg1) {
         const ret = getStringFromWasm0(arg0, arg1);
         return addHeapObject(ret);
@@ -535,10 +727,6 @@ function __wbg_get_imports() {
     imports.wbg.__wbindgen_is_string = function(arg0) {
         const ret = typeof(getObject(arg0)) === 'string';
         return ret;
-    };
-    imports.wbg.__wbindgen_error_new = function(arg0, arg1) {
-        const ret = new Error(getStringFromWasm0(arg0, arg1));
-        return addHeapObject(ret);
     };
     imports.wbg.__wbindgen_bigint_from_i64 = function(arg0) {
         const ret = arg0;

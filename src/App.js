@@ -27,6 +27,27 @@ const EXPLORER_URL = {
   "bitcoin": "https://blockstream.info/",
 }
 
+// FORM VALIDATION
+function validateBitcoinPubkey(pubkey) {
+  return pubkey.length > 0 && pubkey.length == (33 * 2);
+}
+function validateRewardAmt(amt) {
+  return amt.length > 0 && !isNaN(amt);
+}
+function validateBurnAmt(amt) {
+  return amt.length > 0 && !isNaN(amt);
+}
+function validateExpiryDate(expiryDate) {
+  return expiryDate.length > 0
+    && !isNaN(date_to_unix_timestamp(expiryDate));
+}
+function validateBondSpec(spec) {
+  return 100 < spec.length && spec.length < 200;
+}
+function validateTxHex(hex) {
+  return hex.length > 0;
+}
+
 async function broadcastRawTx(liquidBurnTx) {
   let URL = EXPLORER_URL[NETWORK] + "tx";
   let response = await fetch(URL, {
@@ -224,10 +245,13 @@ const assetToEnglish = (asset) => {
 function Content() {
 
   const [activePage, setActivePage] = useState("verifyPage");
+  const [isGenerateSubmitted, setIsGenerateSubmitted] = useState(false);
+  const [isVerifySubmitted, setIsVerifySubmitted] = useState(false);
+  const [isClaimSubmitted, setIsClaimSubmitted] = useState(false);
 
   const [bitcoinPubkey, setBitcoinPubkey] = useState('');
   const [burnAmt, setBurnAmt] = useState(''); // TODO: fixme
-  const [rewardAmt, setRewardAmt] = useState('');
+  const [rewardAmt, setRewardAmt] = useState('10000'); // default fee
   const [expiryDate, setExpiryDate] = useState('');
 
   const [liquidAddr, setLiquidAddr] = useState('');
@@ -248,62 +272,57 @@ function Content() {
   ) => {
     await window.marina.enable();
 
-    const worker = new Worker(new URL('./rsworker.js', import.meta.url));
-    worker.postMessage(0)
-    worker.onmessage = async (e) => {
-      let pubkey = bitcoin_pubkey;
-      let value = BigInt(bond_value);
-      let bond_asset = getLBTCAsset();
-      let time = BigInt(lock_time_unix);
-      console.log("Submitting time " + time);
+    let pubkey = bitcoin_pubkey;
+    let value = BigInt(bond_value);
+    let bond_asset = getLBTCAsset();
+    let time = BigInt(lock_time_unix);
+    console.log("Submitting time " + time);
 
-      let nextAddr = await window.marina.getNextAddress()
-      let reclaim_pubkey = await getPublicKey(nextAddr);
+    let nextAddr = await window.marina.getNextAddress()
+    let reclaim_pubkey = await getPublicKey(nextAddr);
 
-      await init();
-      const spec = create_segwit_bond_spec(
-        pubkey,
-        value,
-        bond_asset,
-        time,
-        reclaim_pubkey
-      );
+    await init();
+    const spec = create_segwit_bond_spec(
+      pubkey,
+      value,
+      bond_asset,
+      time,
+      reclaim_pubkey
+    );
 
-      const address = await bond_address(
-        spec,
-        NETWORK,
-      );
+    const address = await bond_address(
+      spec,
+      NETWORK,
+    );
 
-      // TODO: handle error
-      setLiquidAddr(address);
-      setLiquidSpec(spec);
-    }
+    // TODO: handle error
+    setLiquidAddr(address);
+    setLiquidSpec(spec);
   }
 
   const fetchBond = async (
     spec,
   ) => {
-    const worker = new Worker(new URL('./rsworker.js', import.meta.url));
-    worker.postMessage(0)
-    worker.onmessage = async (e) => {
-
-      await init();
-      const bond_map = inspect_bond(
-        spec
-      );
-      const bond_json = Object.fromEntries(bond_map);
-      console.log(bond_json);
-      console.log("done");
-      // TODO: handle error
-      if ('bond_value' in bond_json) {
-        bond_json['address'] = bond_address(spec, NETWORK);
-        bond_json['txid'] = await bond_address_to_txid(bond_json['address']);
-        bond_json['utxo'] = await bond_txid_to_utxo(bond_json['txid'], bond_json['address']);
-        bond_json['reward_amt'] = bond_json['utxo']['value'] - bond_json['bond_value'];
-        setBondJson(bond_json);
-      } else {
-        console.error('invalid bond');
-      }
+    await init();
+    const bond_map = inspect_bond(
+      spec
+    );
+    const bond_json = Object.fromEntries(bond_map);
+    console.log(bond_json);
+    console.log("done");
+    // TODO: handle error
+    if ('bond_value' in bond_json) {
+      bond_json['address'] = bond_address(spec, NETWORK);
+      if (bond_json['address'] === undefined) return;
+      bond_json['txid'] = await bond_address_to_txid(bond_json['address']);
+      if (bond_json['txid'] === undefined) return;
+      bond_json['utxo'] = await bond_txid_to_utxo(bond_json['txid'], bond_json['address']);
+      if (bond_json['utxo'] === undefined) return;
+      bond_json['reward_amt'] = bond_json['utxo']['value'] - bond_json['bond_value'];
+      if (bond_json['reward_amt'] === undefined) return;
+      setBondJson(bond_json);
+    } else {
+      console.error('invalid bond');
     }
   }
 
@@ -313,51 +332,45 @@ function Content() {
     tx2_hex,
     reward_address,
   ) => {
-    const worker = new Worker(new URL('./rsworker.js', import.meta.url));
-    worker.postMessage(0)
-    worker.onmessage = async (e) => {
-      console.log("abc");
-      await init();
-      console.log('def');
-      const address = await bond_address(spec, NETWORK);
-      const bond_lq_txid = await bond_address_to_txid(address);
-      const bond_lq_vout = await bond_txid_to_vout(bond_lq_txid, address);
-      const bond_lq_raw_tx = await bond_txid_to_tx(bond_lq_txid);
+    await init();
+    const address = await bond_address(spec, NETWORK);
+    const bond_lq_txid = await bond_address_to_txid(address);
+    const bond_lq_vout = await bond_txid_to_vout(bond_lq_txid, address);
+    const bond_lq_raw_tx = await bond_txid_to_tx(bond_lq_txid);
 
-      const [double_spend_tx_hex, double_spend_utxo_txid, double_spend_utxo_vout] = await fetch_bitcoin_double_spend_utxo(tx1_hex, tx2_hex);
+    const [double_spend_tx_hex, double_spend_utxo_txid, double_spend_utxo_vout] = await fetch_bitcoin_double_spend_utxo(tx1_hex, tx2_hex);
 
-      if (reward_address.length === 0) { // fetch from marina
-        let next_address = await window.marina.getNextAddress(); // TODO: should this be confidential?
-        reward_address = next_address.confidentialAddress;
-      }
-      console.log("Reward address: " + reward_address);
-
-      console.log("Done reclaim");
-      console.log(bond_lq_txid + ":" + bond_lq_vout);
-      console.log(bond_lq_raw_tx);
-      console.log(spec);
-      console.log(double_spend_utxo_txid + ":" + double_spend_utxo_vout);
-      console.log(double_spend_tx_hex);
-      console.log(tx1_hex);
-      console.log(tx2_hex);
-      console.log(BigInt(1));
-      console.log(reward_address);
-      let lq_burn_tx = await create_burn_tx(
-        bond_lq_txid + ":" + bond_lq_vout,
-        bond_lq_raw_tx,
-        spec,
-        double_spend_utxo_txid + ":" + double_spend_utxo_vout,
-        double_spend_tx_hex,
-        tx1_hex,
-        tx2_hex,
-        BigInt(1), // liquid network sats / vbyte (hardcoded for now)
-        reward_address,
-      );
-
-      console.log(lq_burn_tx);
-
-      setLiquidBurnTx(lq_burn_tx);
+    if (reward_address.length === 0) { // fetch from marina
+      let next_address = await window.marina.getNextAddress(); // TODO: should this be confidential?
+      reward_address = next_address.confidentialAddress;
     }
+    console.log("Reward address: " + reward_address);
+
+    console.log("Done reclaim");
+    console.log(bond_lq_txid + ":" + bond_lq_vout);
+    console.log(bond_lq_raw_tx);
+    console.log(spec);
+    console.log(double_spend_utxo_txid + ":" + double_spend_utxo_vout);
+    console.log(double_spend_tx_hex);
+    console.log(tx1_hex);
+    console.log(tx2_hex);
+    console.log(BigInt(1));
+    console.log(reward_address);
+    let lq_burn_tx = await create_burn_tx(
+      bond_lq_txid + ":" + bond_lq_vout,
+      bond_lq_raw_tx,
+      spec,
+      double_spend_utxo_txid + ":" + double_spend_utxo_vout,
+      double_spend_tx_hex,
+      tx1_hex,
+      tx2_hex,
+      BigInt(1), // liquid network sats / vbyte (hardcoded for now)
+      reward_address,
+    );
+
+    console.log(lq_burn_tx);
+
+    setLiquidBurnTx(lq_burn_tx);
   }
 
   const getTotalAmt = () => {
@@ -368,7 +381,7 @@ function Content() {
   return (
     <>
     <h1>zeroconf.me</h1>
-    <h2>Show users they can safely accept zero-conf transactions from your bitcoin address</h2>
+    <h2>Show users they can safely accept zero-conf transactions from your bitcoin address (further reading)</h2>
     <div id="nav">
       <div className={`${activePage === "generatePage" ? 'activeNav' : ''}`}>
         <button onClick={() => setActivePage("generatePage")}>Generate Bond</button>
@@ -388,32 +401,34 @@ function Content() {
         <label for="bitcoin-pubkey">Bitcoin Public Key</label><br/>
         <input
           type="text"
-          class="bitcoin-pubkey"
           placeholder="000000000000000000000000000000000000000000000000000000"
           value={bitcoinPubkey}
+          className={!validateBitcoinPubkey(bitcoinPubkey) && isGenerateSubmitted ? 'error-input bitcoin-pubkey' : 'bitcoin-pubkey'}
           onChange={(e) =>
             setBitcoinPubkey(e.target.value)
           }/><br/>
       <div class="form-row">
         <div id="left">
           <div class="form-group">
-            <label for="burn-amt">Burn Amount</label><br/>
+            <label for="burn-amt">Burn Amount (sats)</label><br/>
             <input
               type="text"
               id="burn-amt"
               placeholder="XXX sats"
               value={burnAmt}
+              className={!validateBurnAmt(burnAmt) && isGenerateSubmitted ? 'error-input' : ''}
               onChange={(e) =>
                 setBurnAmt(e.target.value)
               }/><br/>
           </div>
           <div class="form-group">
-            <label for="reward-amt">Reward Amount</label><br/>
+            <label for="reward-amt">Fee budget (sats)</label><br/>
             <input
               type="text"
               id="reward-amt"
               placeholder="YYY sats"
               value={rewardAmt}
+              className={!validateRewardAmt(rewardAmt) && isGenerateSubmitted ? 'error-input' : ''}
               onChange={(e) =>
                 setRewardAmt(e.target.value)
               }/><br/>
@@ -431,10 +446,17 @@ function Content() {
         placeholder="Apr 21, 2024"
         id="expiry-date"
         value={expiryDate}
+        className={!validateExpiryDate(expiryDate) && isGenerateSubmitted ? 'error-input' : ''}
         onChange={(e) =>
           setExpiryDate(e.target.value)
         }/><br/>
       <button id="generate-btn" onClick={() => {
+            setIsGenerateSubmitted(true);
+            if (!validateBitcoinPubkey(bitcoinPubkey)) return;
+            if (!validateBurnAmt(burnAmt)) return;
+            if (!validateRewardAmt(rewardAmt)) return;
+            if (!validateExpiryDate(expiryDate)) return;
+
             generateBondClick(bitcoinPubkey, burnAmt, date_to_unix_timestamp(expiryDate))
           }
         }>Generate Bond</button><br/>
@@ -463,6 +485,7 @@ function Content() {
         <textarea
           type="text"
           id="bond-spec"
+          className={isVerifySubmitted && Object.keys(bondJson).length == 0 ? 'error-input' : ''}
           placeholder="000000000000000000000000000000000000000000000000000000"
           value={bondSpec}
           onChange={(e) =>
@@ -470,6 +493,8 @@ function Content() {
           }/><br/>
 
         <button id="generate-btn" onClick={() => {
+            setIsVerifySubmitted(true);
+            if (!validateBondSpec(bondSpec)) return;
             fetchBond(bondSpec)
           }
         }>Fetch Bond</button>
@@ -501,6 +526,7 @@ function Content() {
       <textarea
           type="text"
           id="bond-spec"
+          className={isClaimSubmitted && Object.keys(bondJson).length == 0 ? 'error-input' : ''}
           placeholder=""
           value={bondSpec}
           onChange={(e) =>
@@ -510,7 +536,7 @@ function Content() {
       <label for="bitcoin-pubkey">Bitcoin transaction #1 (hex)</label><br/>
       <textarea
         type="text"
-        class="tx-hex"
+        className={!validateTxHex(tx1Hex) && isClaimSubmitted ? 'error-input tx-hex' : 'tx-hex'}
         placeholder=""
         value={tx1Hex}
           onChange={(e) =>
@@ -520,7 +546,7 @@ function Content() {
       <label for="bitcoin-pubkey">Bitcoin transaction #2 (hex)</label><br/>
       <textarea
         type="text"
-        class="tx-hex"
+        className={!validateTxHex(tx2Hex) && isClaimSubmitted ? 'error-input tx-hex' : 'tx-hex'}
         placeholder=""
         value={tx2Hex}
           onChange={(e) =>
@@ -538,6 +564,10 @@ function Content() {
           }/><br/>
 
       <button id="generate-btn" onClick={() => {
+            setIsClaimSubmitted(true);
+            if (!validateBondSpec(bondSpec)) return;
+            if (!validateTxHex(tx1Hex)) return;
+            if (!validateTxHex(tx2Hex)) return;
             claimBond(bondSpec, tx1Hex, tx2Hex, rewardAddress)
           }
         }>Generate Transaction</button>
