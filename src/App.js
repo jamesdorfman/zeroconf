@@ -393,7 +393,7 @@ function Content() {
     <>
     <div id="top-text">
       <h1>zeroconf.me</h1>
-      <h2>Show users they can safely accept zero-conf transactions from your bitcoin address</h2>
+      <h2>Show users they can safely accept zero-conf transactions from your Bitcoin public key</h2>
       <h2>For more details, see <a href="#">this blog post</a></h2>
     </div>
     <div id="nav">
@@ -404,13 +404,13 @@ function Content() {
         <button onClick={() => setActivePage("verifyPage")}>Verify a Bond</button>
       </div>
       <div className={`${activePage === "claimPage" ? 'activeNav' : ''}`}>
-        <button onClick={() => setActivePage("claimPage")}>Claim a Bond</button>
+        <button onClick={() => setActivePage("claimPage")}>Burn a Bond</button>
       </div>
     </div>
     <div className={`${activePage === "generatePage" ? '' : 'invisible'} content`}>
       <div id="instructions">
         <img id="questionmark" src={questionmark}></img>
-        <p>Generate a bond on liquid that people can burn if do a double spend. This will assure your customers that they can accept zero-conf transactions from you</p>
+        <p>Generate a bond on Liquid with funds that will be burned if you do a Bitcoin double spend. This will assure your customers that they can accept your zero-conf transactions.</p>
       </div>
         <label for="bitcoin-pubkey">Bitcoin Public Key</label><br/>
         <input
@@ -534,7 +534,8 @@ function Content() {
     <div className={`${activePage === "claimPage" ? '' : 'invisible'} content`}>
       <div id="instructions">
         <img id="questionmark" src={questionmark}></img>
-        <p>Claim a bond that was created using this tool</p>
+        <p>Burn a bond that was created using this tool by providing a double spend from the associated Bitcoin public key
+        </p>
       </div>
 
       <label for="bitcoin-pubkey">Liquid Bond Spec <u id="label-hint">(?)</u></label><br/>
