@@ -7,11 +7,17 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  padding-bottom: 50px !important;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+#content {
+  margin-bottom: 30px;
+  padding-bottom: 40px;
 }
 
 #nav {
@@ -24,11 +30,13 @@ code {
   width: 33%;
   justify-content: space-between;
   font-family: Lexend;
-  font-size: 21px;
+  font-size: 18px;
   font-weight: 400;
   line-height: 26px;
   letter-spacing: 0em;
   text-align: center;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .invisible {
@@ -36,31 +44,35 @@ code {
 }
 
 .activeNav {
-  border-bottom: 2px solid #3495A3;
+  border-bottom: 3px solid #1E8079;
+}
+
+#top-text {
+  margin-bottom: 60px;
 }
 
 h1 {
   font-family: Lexend;
-  font-size: 68px;
+  font-size: 58px;
   font-weight: 500;
   line-height: 74px;
   letter-spacing: -0.03em;
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 h2 {
   font-family: Lexend;
-  font-size: 23px;
+  font-size: 19px;
   font-weight: 400;
   line-height: 35px;
   letter-spacing: 0em;
   text-align: center;
-  margin-bottom: 100px;
+  margin-bottom: -10px;
 }
 label {
   font-family: Lexend;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   line-height: 20px;
   letter-spacing: 0em;
@@ -99,7 +111,8 @@ input, textarea {
 }
 
 .bitcoin-pubkey {
-  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
 }
 
 #bond-spec {
@@ -136,10 +149,11 @@ input, textarea {
 }
 
 #amt-hint {
-  color: #146C52;
+  color: #1E8079 !important;
   padding-top: 60px;
   padding-left: 20px;
 }
+
 #burn-explained {
   color: #146C52;
 }
@@ -154,22 +168,33 @@ input, textarea {
 }
 
 #instructions {
-  width: 100%;
+  width: 96%;
   padding: 8px 22px 8px 22px;
   border-radius: 4px;
   gap: 4px;
   margin: 0 auto;
+  display: flex;
+  align-content: flex-start;
+  justify-content: center;
+  align-items: center;
 
   background: #CAF5FB;
+}
+#instructions img {
+  width: 20px;
+  height: 20px;
+  padding-right: 10px;
 }
 
 #instructions p {
   font-family: Lexend;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
   line-height: 23px;
   letter-spacing: 0em;
   text-align: center;
+  display: block;
+  width: 100%;
 }
 
 #instructions img {
@@ -177,8 +202,8 @@ input, textarea {
   margin: 0 auto;
 }
 
-#generate-btn {
-  background: #3495A3;
+.generate-btn {
+  background: #2CCCBF;
   border-width: 0px;
   color: #FFFFFF;
 
@@ -197,6 +222,10 @@ input, textarea {
   text-align: center;
 
   margin-top: 10px;
+}
+
+#generate-claim-tx-btn { /* specific to claim page */
+  margin-bottom: 30px;
 }
 
 #addr {

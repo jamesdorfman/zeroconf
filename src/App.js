@@ -391,8 +391,11 @@ function Content() {
 
   return (
     <>
-    <h1>zeroconf.me</h1>
-    <h2>Show users they can safely accept zero-conf transactions from your bitcoin address (further reading)</h2>
+    <div id="top-text">
+      <h1>zeroconf.me</h1>
+      <h2>Show users they can safely accept zero-conf transactions from your bitcoin address</h2>
+      <h2>For more details, see <a href="#">this blog post</a></h2>
+    </div>
     <div id="nav">
       <div className={`${activePage === "generatePage" ? 'activeNav' : ''}`}>
         <button onClick={() => setActivePage("generatePage")}>Generate Bond</button>
@@ -407,7 +410,7 @@ function Content() {
     <div className={`${activePage === "generatePage" ? '' : 'invisible'} content`}>
       <div id="instructions">
         <img id="questionmark" src={questionmark}></img>
-        <p>Generate a bond on liquid that people can claim if they see that you’ve done a double spend transaction. This is to assure your customers that they can do zero conf with you</p>
+        <p>Generate a bond on liquid that people can burn if do a double spend. This will assure your customers that they can accept zero-conf transactions from you</p>
       </div>
         <label for="bitcoin-pubkey">Bitcoin Public Key</label><br/>
         <input
@@ -461,7 +464,7 @@ function Content() {
         onChange={(e) =>
           setExpiryDate(e.target.value)
         }/><br/>
-      <button id="generate-btn" onClick={() => {
+      <button class="generate-btn" onClick={() => {
             setIsGenerateSubmitted(true);
             if (!validateBitcoinPubkey(bitcoinPubkey)) return;
             if (!validateBurnAmt(burnAmt)) return;
@@ -503,7 +506,7 @@ function Content() {
             setBondSpec(e.target.value.trim())
           }/><br/>
 
-        <button id="generate-btn" onClick={() => {
+        <button class="generate-btn" onClick={() => {
             setIsVerifySubmitted(true);
             if (!validateBondSpec(bondSpec)) return;
 
@@ -534,7 +537,7 @@ function Content() {
         <p>Claim a bond that was created using this tool</p>
       </div>
 
-      <label for="bitcoin-pubkey">Liquid Bond Spec</label><br/>
+      <label for="bitcoin-pubkey">Liquid Bond Spec <u id="label-hint">(?)</u></label><br/>
       <textarea
           type="text"
           id="bond-spec"
@@ -545,7 +548,7 @@ function Content() {
             setBondSpec(e.target.value.trim())
           }/><br/>
 
-      <label for="bitcoin-pubkey">Bitcoin transaction #1 (hex)</label><br/>
+      <label for="bitcoin-pubkey">Bitcoin transaction #1 hex <u id="label-hint">(?)</u></label><br/>
       <textarea
         type="text"
         className={!validateTxHex(tx1Hex) && isClaimSubmitted ? 'error-input tx-hex' : 'tx-hex'}
@@ -555,7 +558,7 @@ function Content() {
             setTx1Hex(e.target.value.trim())
           }/><br/>
 
-      <label for="bitcoin-pubkey">Bitcoin transaction #2 (hex)</label><br/>
+      <label for="bitcoin-pubkey">Bitcoin transaction #2 hex <u id="label-hint">(?)</u></label><br/>
       <textarea
         type="text"
         className={!validateTxHex(tx2Hex) && isClaimSubmitted ? 'error-input tx-hex' : 'tx-hex'}
@@ -565,7 +568,7 @@ function Content() {
             setTx2Hex(e.target.value.trim())
           }/><br/>
 
-      <label for="bitcoin-pubkey">Liquid Reward Address (blank --> send to marina)</label><br/>
+      <label for="bitcoin-pubkey">Liquid Reward Address (blank --> send to marina) <u id="label-hint">(?)</u></label><br/>
       <input
         type="text"
         class="bitcoin-pubkey"
@@ -575,7 +578,7 @@ function Content() {
             setRewardAddress(e.target.value.trim())
           }/><br/>
 
-      <button id="generate-btn" onClick={() => {
+      <button class="generate-btn" id="generate-claim-tx-btn" onClick={() => {
             setIsClaimSubmitted(true);
             if (!validateBondSpec(bondSpec)) return;
             if (!validateTxHex(tx1Hex)) return;
@@ -588,7 +591,7 @@ function Content() {
       <div className={`${Object.entries(liquidBurnTx).length === 0 ? 'invisible' : 'visible'}`} id="burn-tx-holder">
         <p id="burn-tx">{liquidBurnTx}</p>
 
-        <button id="generate-btn" onClick={() => {
+        <button class="generate-btn" onClick={() => {
             broadcastRawTx(liquidBurnTx)
           }
         }>Broadcast on Liquid</button>
