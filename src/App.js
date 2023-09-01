@@ -53,7 +53,7 @@ const BURN_AMT_TOOLTIP = "The " + assetToEnglish(getLBTCAsset()) + " amount whic
 const REWARD_AMT_TOOLTIP = "The extra amount included in the bond which will be used to pay for the fee if the bond is burned. Recommended: at least 10 000 sats.";
 const EXPIRY_DATE_TOOLTIP = "On this date, you will be able to reclaim the funds tied up in your bond using this browser's marina wallet. In other words, this is the date when your bond expires. Make sure to backup your marina wallet, or else you will lose access to these funds.";
 
-const BOND_SPEC_TOOLTIP = "The base64 spec string which the sender gave you to prove the existence of their bond";
+const BOND_SPEC_TOOLTIP = "The Base64 spec string which the sender gave you to prove the existence of their bond";
 const TX1_HEX_TOOLTIP = "The raw Bitcoin transaction (hex) of one of the two double spend transactions from the bond's Bitcoin public key";
 const TX2_HEX_TOOLTIP = "The raw Bitcoin transaction (hex) of the other of the two double spend transactions from the bond's Bitcoin public key";
 const REWARD_ADDRESS_TOOLTIP = "If any excess funds remain in the bond after the burn then they will be sent to this address. If this field left blank then they any reward funds will simply be sent to your browser's marina wallet.";
@@ -495,7 +495,7 @@ function Content() {
         <img id="questionmark" src={questionmark}></img>
         <p>Verify a bond that was created using this tool</p>
       </div>
-        <label for="bond-spec">Bond Spec</label><br/>
+        <label for="bond-spec">Bond Spec <div class="tooltip">(?) <span class="tooltiptext">{BOND_SPEC_TOOLTIP}</span></div></label><br/>
         <textarea
           type="text"
           id="bond-spec"
