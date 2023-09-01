@@ -54,6 +54,8 @@ const REWARD_AMT_TOOLTIP = "The extra amount included in the bond which will be 
 const EXPIRY_DATE_TOOLTIP = "On this date, you will be able to reclaim the funds tied up in your bond using this browser's marina wallet. In other words, this is the date when your bond expires. Make sure to backup your marina wallet, or else you will lose access to these funds.";
 
 const BOND_SPEC_TOOLTIP = "The Base64 spec string which the sender gave you to prove the existence of their bond";
+const WHY_BURN_TOOLTIP = "If the funds were sent to the claimer, then the double spender would be able to claim their own bond. Burning the funds ensures that the bond creator cannot exploit the bond and save their funds when they perform a double spend."
+
 const TX1_HEX_TOOLTIP = "The raw Bitcoin transaction (hex) of one of the two double spend transactions from the bond's Bitcoin public key";
 const TX2_HEX_TOOLTIP = "The raw Bitcoin transaction (hex) of the other of the two double spend transactions from the bond's Bitcoin public key";
 const REWARD_ADDRESS_TOOLTIP = "If any excess funds remain in the bond after the burn then they will be sent to this address. If this field left blank then they any reward funds will simply be sent to your browser's marina wallet.";
@@ -77,18 +79,6 @@ function validateBondSpec(spec) {
 }
 function validateTxHex(hex) {
   return hex.length > 0;
-}
-
-async function broadcastRawTx(liquidBurnTx) {
-  let URL = EXPLORER_URL[NETWORK] + "tx";
-  let response = await fetch(URL, {
-    method: "POST",
-    body: liquidBurnTx,
-    mode: "no-cors", // no-cors, *cors, same-origin
-  });
-  if (!response.ok) {
-    console.error("Blockstream explorer API raw tx broadcast failed");
-  }
 }
 
 async function fetch_bitcoin_double_spend_utxo(tx_1_hex, tx_2_hex) {
@@ -282,6 +272,7 @@ function Content() {
   const [tx2Hex, setTx2Hex] = useState('');
   const [liquidBurnTx, setLiquidBurnTx] = useState('');
   const [rewardAddress, setRewardAddress] = useState('');
+  const [broadcastStatus, setBroadcastStatus] = useState('');
 
   const generateBondClick = async (
     bitcoin_pubkey,
@@ -389,6 +380,23 @@ function Content() {
     } catch (err) {
       console.error("Error occurred while claiming bond " + err);
       alert(err);
+    }
+  }
+
+  async function broadcastRawTx(liquidBurnTx) {
+    let URL = EXPLORER_URL[NETWORK] + "api/tx";
+    console.log(liquidBurnTx)
+    let response = await fetch(URL, {
+      method: "POST",
+      body: liquidBurnTx,
+      mode: "no-cors", // no-cors, *cors, same-origin
+    });
+    if (!response.ok) {
+      console.error("Blockstream explorer API raw tx broadcast failed");
+      setBroadcastStatus("Error broadcasting transaction");
+      console.log('Set it');
+      console.log(await response.text());
+      //setBroadcastStatus(await response.text());
     }
   }
 
@@ -535,11 +543,12 @@ function Content() {
 
           <p>Anyone who can show a double spend from this bitcoin public key can burn
             &nbsp;{sat_to_btc(bondJson.bond_value)} {assetToEnglish(bondJson.bond_asset)} of the owner's
-            funds, and claim {sat_to_btc(bondJson.reward_amt)} {assetToEnglish(bondJson.bond_asset)}
-            &nbsp;for themselves</p>
+            funds
+          </p>
           <div id="burn-explained">
-            <u>Why is the bond burned?</u>
+            <u><div class="tooltip">Why is the bond burned (?)<span class="tooltiptext burn-tooltip">{WHY_BURN_TOOLTIP}</span></div></u>
           </div>
+          <br></br>
         </div>
 
         {Footer()}
@@ -610,6 +619,9 @@ function Content() {
             broadcastRawTx(liquidBurnTx)
           }
         }>Broadcast on Liquid</button>
+
+        <div className={`${broadcastStatus.length === 0 ? 'invisible' : 'visible'}`}
+            id="broadcast-status"><b>Broadcast status:</b> {broadcastStatus}</div>
       </div>
     </div>
   </>
