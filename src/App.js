@@ -520,7 +520,7 @@ function Content() {
           type="text"
           id="bond-spec"
           className={isVerifySubmitted && Object.keys(bondJson).length == 0 ? 'error-input' : ''}
-          placeholder="000000000000000000000000000000000000000000000000000000"
+          placeholder="AAJ3g-LB9mTsyVrYMd8J3pvnvnJOmrOHmgSRWOD4X781hQUAAAAAAAAASZqBhUX2uuOfwDtjfypOHmTlkMrBvDpvbXGqRENlTBQ-R6lmA_aRqTBUWGqg4rd1nDvwUGVGPGfpeTCwkJk91GVSTcsH"
           value={bondSpec}
           onChange={(e) =>
             setBondSpec(e.target.value.trim())
@@ -566,7 +566,7 @@ function Content() {
           type="text"
           id="bond-spec"
           className={isClaimSubmitted && Object.keys(bondJson).length == 0 ? 'error-input' : ''}
-          placeholder=""
+          placeholder="AAJ3g-LB9mTsyVrYMd8J3pvnvnJOmrOHmgSRWOD4X781hQUAAAAAAAAASZqBhUX2uuOfwDtjfypOHmTlkMrBvDpvbXGqRENlTBQ-R6lmA_aRqTBUWGqg4rd1nDvwUGVGPGfpeTCwkJk91GVSTcsH"
           value={bondSpec}
           onChange={(e) =>
             setBondSpec(e.target.value.trim())
@@ -576,7 +576,7 @@ function Content() {
       <textarea
         type="text"
         className={!validateTxHex(tx1Hex) && isClaimSubmitted ? 'error-input tx-hex' : 'tx-hex'}
-        placeholder=""
+        placeholder="020000000001015b69cc9bbba01419b2a9e5644ec82f0e1101626bc31db8aa1a1993fb1131e9960100000000fdffffff02dfb9ed00000000001600143938d4abd107e46d59a06d81cf96d6d60de9a5b8809fd5000000000016001422c31e2b606fc9e16496c91af15a4a2904dec4ab0247304402206a143fa19da7180716fbbebf3840eedfa7e101f71a6c47c9537c87d033269daa022063116fbfc8f39178f32670b2e0a7e10f9d9888134f20b22a36068668694e08e10121027783e2c1f664ecc95ad831df09de9be7be724e9ab3879a049158e0f85fbf35857b430c00"
         value={tx1Hex}
           onChange={(e) =>
             setTx1Hex(e.target.value.trim())
@@ -586,7 +586,7 @@ function Content() {
       <textarea
         type="text"
         className={!validateTxHex(tx2Hex) && isClaimSubmitted ? 'error-input tx-hex' : 'tx-hex'}
-        placeholder=""
+        placeholder="020000000001015b69cc9bbba01419b2a9e5644ec82f0e1101626bc31db8aa1a1993fb1131e9960100000000fdffffff021fb9ed00000000001600143938d4abd107e46d59a06d81cf96d6d60de9a5b8809fd5000000000016001422c31e2b606fc9e16496c91af15a4a2904dec4ab024730440220402d11b26aad68497e8629fcb8e020f3440747fe67bada2f43c9afea3e6d7153022029a419ddaf06ae50d7211bef4752812b5f51c61c2f15121bab34792d3d9c56d40121027783e2c1f664ecc95ad831df09de9be7be724e9ab3879a049158e0f85fbf35857c430c00"
         value={tx2Hex}
           onChange={(e) =>
             setTx2Hex(e.target.value.trim())
