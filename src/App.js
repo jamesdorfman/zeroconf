@@ -410,7 +410,7 @@ function Content() {
     <div id="top-text">
       <h1>zeroconf.me</h1>
       <h3>A (beta) project by <a href="http://twitter.com/james_dev_123">James Dorfman</a> and <a href="https://roose.io/">Steven Roose</a></h3>
-      <h4>Disclaimer: only currently working on Liquid testnet</h4>
+      <h4>Disclaimer: only currently working on Liquid testnet and with Google Chrome</h4>
       <h2>Show users they can safely accept zero-conf transactions from your Bitcoin public key</h2>
       <h2>For more details, see <a href="https://roose.io/blog/bitcoin-double-spend-prevention-bonds-liquid/">this blog post</a></h2>
     </div>
