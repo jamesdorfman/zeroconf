@@ -252,6 +252,14 @@ const submitTxClick = async (liquidAddr, totalAmt) => {
   console.log(txid, hex)
 }
 
+function Footer() {
+  return(
+    <footer>
+      {/*<p>A project by <a href="http://twitter.com/james_dev_123">James Dorfman</a> and <a href="https://roose.io/">Steven Roose</a></p>*/}
+    </footer>
+  )
+}
+
 function Content() {
 
   const [activePage, setActivePage] = useState("verifyPage");
@@ -393,6 +401,8 @@ function Content() {
     <>
     <div id="top-text">
       <h1>zeroconf.me</h1>
+      <h3>A (beta) project by <a href="http://twitter.com/james_dev_123">James Dorfman</a> and <a href="https://roose.io/">Steven Roose</a></h3>
+      <h4>Disclaimer: only currently working on Liquid testnet</h4>
       <h2>Show users they can safely accept zero-conf transactions from your Bitcoin public key</h2>
       <h2>For more details, see <a href="https://roose.io/blog/bitcoin-double-spend-prevention-bonds-liquid/">this blog post</a></h2>
     </div>
@@ -488,6 +498,8 @@ function Content() {
         <p>Save this spec. You will need to share it with receivers:</p>
         <p id="spec">{liquidSpec}</p><br/>
       </div>
+
+      {Footer()}
     </div>
 
     <div className={`${activePage === "verifyPage" ? '' : 'invisible'} content`}>
@@ -529,6 +541,8 @@ function Content() {
             <u>Why is the bond burned?</u>
           </div>
         </div>
+
+        {Footer()}
     </div>
 
     <div className={`${activePage === "claimPage" ? '' : 'invisible'} content`}>

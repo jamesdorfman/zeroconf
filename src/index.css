@@ -85,7 +85,7 @@ h1 {
   line-height: 74px;
   letter-spacing: -0.03em;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: -20px;
 }
 
 h2 {
@@ -95,8 +95,29 @@ h2 {
   line-height: 35px;
   letter-spacing: 0em;
   text-align: center;
-  margin-bottom: -10px;
+  margin-bottom: -15px;
 }
+
+h3 {
+  font-family: Lexend;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 35px;
+  letter-spacing: 0em;
+  text-align: center;
+  margin-bottom: -25px;
+}
+
+h4 {
+  font-family: Lexend;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 35px;
+  letter-spacing: 0em;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
 label {
   font-family: Lexend;
   font-size: 14px;
@@ -190,8 +211,8 @@ input, textarea {
   background: linear-gradient(180deg, #F7F7F7 0%, rgba(247, 247, 247, 0) 100%);
   margin: 0 auto;
   padding-top: 20px;
-  padding-left: 300px;
-  padding-right: 300px;
+  padding-left: 100px;
+  padding-right: 100px;
 }
 
 #instructions {
@@ -356,4 +377,10 @@ input, textarea {
 
 .error-input {
   border: 1.5px solid red;
+}
+
+footer {
+  /*text-align: center;
+  padding-top: 15px;
+  padding-bottom: 5px;*/
 }
