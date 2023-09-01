@@ -27,6 +27,32 @@ const EXPLORER_URL = {
   "bitcoin": "https://blockstream.info/",
 }
 
+const getLBTCAsset = () => {
+  if (NETWORK == "liquidtestnet") {
+    return "144c654344aa716d6f3abcc1ca90e5641e4e2a7f633bc09fe3baf64585819a49";
+  } else if (NETWORK == "liquid") {
+    return "b2e15d0d7a0c94e4e2ce0fe6e8691b9e451377f6e46e8045a86f7c4b5d4f0f23";
+  } else {
+    console.error("Unrecognized network");
+    return "ERROR"
+  }
+}
+
+const assetToEnglish = (asset) => {
+  if (asset == "144c654344aa716d6f3abcc1ca90e5641e4e2a7f633bc09fe3baf64585819a49") {
+    return "tL-BTC";
+  } else if (asset == "b2e15d0d7a0c94e4e2ce0fe6e8691b9e451377f6e46e8045a86f7c4b5d4f0f23") {
+    return "L-BTC";
+  } else {
+    return "unknown";
+  }
+}
+
+const BITCOIN_PK_TOOLTIP = "The Bitcoin public key which you want to send zero-conf transactions from";
+const BURN_AMT_TOOLTIP = "The " + assetToEnglish(getLBTCAsset()) + " amount which will be burned if a double spend is submitted from the Bitcoin public key";
+const REWARD_AMT_TOOLTIP = "The extra amount included in the bond which will be used to pay for the fee if the bond is burned. Recommended: at least 10 000 sats.";
+const EXPIRY_DATE_TOOLTIP = "On this date, you will be able to reclaim the funds tied up in your bond using this browser's marina wallet. In other words, this is the date when your bond expires. Make sure to backup your marina wallet, or else you will lose access to these funds.";
+
 const BOND_SPEC_TOOLTIP = "The base64 spec string which the sender gave you to prove the existence of their bond";
 const TX1_HEX_TOOLTIP = "The raw Bitcoin transaction (hex) of one of the two double spend transactions from the bond's Bitcoin public key";
 const TX2_HEX_TOOLTIP = "The raw Bitcoin transaction (hex) of the other of the two double spend transactions from the bond's Bitcoin public key";
@@ -212,17 +238,6 @@ async function getPublicKey(address) {
   return toHexString(pubkey);
 }
 
-const getLBTCAsset = () => {
-  if (NETWORK == "liquidtestnet") {
-    return "144c654344aa716d6f3abcc1ca90e5641e4e2a7f633bc09fe3baf64585819a49";
-  } else if (NETWORK == "liquid") {
-    return "b2e15d0d7a0c94e4e2ce0fe6e8691b9e451377f6e46e8045a86f7c4b5d4f0f23";
-  } else {
-    console.error("Unrecognized network");
-    return "ERROR"
-  }
-}
-
 const submitTxClick = async (liquidAddr, totalAmt) => {
   const { txid, hex } = await window.marina.sendTransaction(
     [
@@ -235,16 +250,6 @@ const submitTxClick = async (liquidAddr, totalAmt) => {
   );
 
   console.log(txid, hex)
-}
-
-const assetToEnglish = (asset) => {
-  if (asset == "144c654344aa716d6f3abcc1ca90e5641e4e2a7f633bc09fe3baf64585819a49") {
-    return "tL-BTC";
-  } else if (asset == "b2e15d0d7a0c94e4e2ce0fe6e8691b9e451377f6e46e8045a86f7c4b5d4f0f23") {
-    return "L-BTC";
-  } else {
-    return "unknown";
-  }
 }
 
 function Content() {
@@ -407,7 +412,7 @@ function Content() {
         <img id="questionmark" src={questionmark}></img>
         <p>Generate a bond on Liquid with funds that will be burned if you do a Bitcoin double spend. This will assure your customers that they can accept your zero-conf transactions.</p>
       </div>
-        <label for="bitcoin-pubkey">Bitcoin Public Key</label><br/>
+        <label for="bitcoin-pubkey">Bitcoin Public Key <div class="tooltip">(?) <span class="tooltiptext">{BITCOIN_PK_TOOLTIP}</span></div></label><br/>
         <input
           type="text"
           placeholder="000000000000000000000000000000000000000000000000000000"
@@ -419,11 +424,11 @@ function Content() {
       <div class="form-row">
         <div id="left">
           <div class="form-group">
-            <label for="burn-amt">Burn Amount (sats)</label><br/>
+            <label for="burn-amt">Burn Amount (sats) <div class="tooltip">(?) <span class="tooltiptext">{BURN_AMT_TOOLTIP}</span></div></label><br/>
             <input
               type="text"
               id="burn-amt"
-              placeholder="XXX sats"
+              placeholder="XXX"
               value={burnAmt}
               className={!validateBurnAmt(burnAmt) && isGenerateSubmitted ? 'error-input' : ''}
               onChange={(e) =>
@@ -431,7 +436,7 @@ function Content() {
               }/><br/>
           </div>
           <div class="form-group">
-            <label for="reward-amt">Fee budget (sats)</label><br/>
+            <label for="reward-amt">Fee budget (sats) <div class="tooltip">(?) <span class="tooltiptext">{REWARD_AMT_TOOLTIP}</span></div></label><br/>
             <input
               type="text"
               id="reward-amt"
@@ -445,11 +450,11 @@ function Content() {
         </div>
         <div id="right">
           <div id="amt-hint">
-            <u>What's the right number?</u>
+            <u> </u>
           </div>
         </div>
       </div>
-      <label for="Expiry Date">Expiry Date</label><br/>
+      <label for="Expiry Date">Expiry Date <div class="tooltip">(?) <span class="tooltiptext">{EXPIRY_DATE_TOOLTIP}</span></div></label><br/>
       <input
         type="text"
         placeholder="Apr 21, 2024"
@@ -512,7 +517,7 @@ function Content() {
         <div className={`${Object.entries(bondJson).length === 0 ? 'invisible' : 'visible'}`} id="spec-info">
           <p><b>Bitcoin pubkey:</b> {bondJson.pubkey}</p>
           <p><b>Burn value:</b> {sat_to_btc(bondJson.bond_value)} {assetToEnglish(bondJson.bond_asset)}</p>
-          <p><b>Reward value:</b> {sat_to_btc(bondJson.reward_amt)} {assetToEnglish(bondJson.bond_asset)}</p>
+          <p><b>Included fee budget:</b> {sat_to_btc(bondJson.reward_amt)} {assetToEnglish(bondJson.bond_asset)}</p>
           <p><b>Expiry:</b> {unix_timestamp_to_date(bondJson.lock_time)}</p>
           <p><b>Bond TXID:</b> <a href={EXPLORER_URL[NETWORK] + "tx/" + bondJson.txid}>{bondJson.txid}</a></p>
 
