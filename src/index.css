@@ -15,6 +15,33 @@ code {
     monospace;
 }
 
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 250px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  border-radius: 6px;
+
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  left: 20px;
+  z-index: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
 #content {
   margin-bottom: 30px;
   padding-bottom: 40px;
@@ -225,6 +252,12 @@ input, textarea {
 }
 
 #generate-claim-tx-btn { /* specific to claim page */
+  margin-bottom: 30px;
+}
+#burn-tx-holder {
+  margin-top: -30px;
+}
+#send-claim-tx-btn {
   margin-bottom: 30px;
 }
 

@@ -27,6 +27,11 @@ const EXPLORER_URL = {
   "bitcoin": "https://blockstream.info/",
 }
 
+const BOND_SPEC_TOOLTIP = "The base64 spec string which the sender gave you to prove the existence of their bond";
+const TX1_HEX_TOOLTIP = "The raw Bitcoin transaction (hex) of one of the two double spend transactions from the bond's Bitcoin public key";
+const TX2_HEX_TOOLTIP = "The raw Bitcoin transaction (hex) of the other of the two double spend transactions from the bond's Bitcoin public key";
+const REWARD_ADDRESS_TOOLTIP = "If any excess funds remain in the bond after the burn then they will be sent to this address. If this field left blank then they any reward funds will simply be sent to your browser's marina wallet.";
+
 // FORM VALIDATION
 function validateBitcoinPubkey(pubkey) {
   return pubkey.length > 0 && pubkey.length == (33 * 2);
@@ -353,16 +358,6 @@ function Content() {
       }
       console.log("Reward address: " + reward_address);
 
-      console.log("Done reclaim");
-      console.log(bond_lq_txid + ":" + bond_lq_vout);
-      console.log(bond_lq_raw_tx);
-      console.log(spec);
-      console.log(double_spend_utxo_txid + ":" + double_spend_utxo_vout);
-      console.log(double_spend_tx_hex);
-      console.log(tx1_hex);
-      console.log(tx2_hex);
-      console.log(BigInt(1));
-      console.log(reward_address);
       let lq_burn_tx = await create_burn_tx(
         bond_lq_txid + ":" + bond_lq_vout,
         bond_lq_raw_tx,
@@ -394,7 +389,7 @@ function Content() {
     <div id="top-text">
       <h1>zeroconf.me</h1>
       <h2>Show users they can safely accept zero-conf transactions from your Bitcoin public key</h2>
-      <h2>For more details, see <a href="#">this blog post</a></h2>
+      <h2>For more details, see <a href="https://roose.io/blog/bitcoin-double-spend-prevention-bonds-liquid/">this blog post</a></h2>
     </div>
     <div id="nav">
       <div className={`${activePage === "generatePage" ? 'activeNav' : ''}`}>
@@ -538,7 +533,7 @@ function Content() {
         </p>
       </div>
 
-      <label for="bitcoin-pubkey">Liquid Bond Spec <u id="label-hint">(?)</u></label><br/>
+      <label for="bitcoin-pubkey">Liquid Bond Spec <div class="tooltip">(?) <span class="tooltiptext">{BOND_SPEC_TOOLTIP}</span></div></label><br/>
       <textarea
           type="text"
           id="bond-spec"
@@ -549,7 +544,7 @@ function Content() {
             setBondSpec(e.target.value.trim())
           }/><br/>
 
-      <label for="bitcoin-pubkey">Bitcoin transaction #1 hex <u id="label-hint">(?)</u></label><br/>
+      <label for="bitcoin-pubkey">Bitcoin transaction #1 hex <div class="tooltip">(?) <span class="tooltiptext">{TX1_HEX_TOOLTIP}</span></div></label><br/>
       <textarea
         type="text"
         className={!validateTxHex(tx1Hex) && isClaimSubmitted ? 'error-input tx-hex' : 'tx-hex'}
@@ -559,7 +554,7 @@ function Content() {
             setTx1Hex(e.target.value.trim())
           }/><br/>
 
-      <label for="bitcoin-pubkey">Bitcoin transaction #2 hex <u id="label-hint">(?)</u></label><br/>
+      <label for="bitcoin-pubkey">Bitcoin transaction #2 hex <div class="tooltip">(?) <span class="tooltiptext">{TX2_HEX_TOOLTIP}</span></div></label><br/>
       <textarea
         type="text"
         className={!validateTxHex(tx2Hex) && isClaimSubmitted ? 'error-input tx-hex' : 'tx-hex'}
@@ -569,7 +564,7 @@ function Content() {
             setTx2Hex(e.target.value.trim())
           }/><br/>
 
-      <label for="bitcoin-pubkey">Liquid Reward Address (blank --> send to marina) <u id="label-hint">(?)</u></label><br/>
+      <label for="bitcoin-pubkey">Liquid Reward Address (optional) <div class="tooltip">(?) <span class="tooltiptext">{REWARD_ADDRESS_TOOLTIP}</span></div></label><br/>
       <input
         type="text"
         class="bitcoin-pubkey"
@@ -592,7 +587,7 @@ function Content() {
       <div className={`${Object.entries(liquidBurnTx).length === 0 ? 'invisible' : 'visible'}`} id="burn-tx-holder">
         <p id="burn-tx">{liquidBurnTx}</p>
 
-        <button class="generate-btn" onClick={() => {
+        <button class="generate-btn" id="send-claim-tx-btn" onClick={() => {
             broadcastRawTx(liquidBurnTx)
           }
         }>Broadcast on Liquid</button>
