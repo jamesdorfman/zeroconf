@@ -75,7 +75,7 @@ function validateExpiryDate(expiryDate) {
     && !isNaN(date_to_unix_timestamp(expiryDate));
 }
 function validateBondSpec(spec) {
-  return 100 < spec.length && spec.length < 200;
+  return spec.length > 25 && spec.length < 500;
 }
 function validateTxHex(hex) {
   return hex.length > 0;
@@ -312,6 +312,12 @@ function Content() {
       console.error("Error occurred while generating bond: " + err);
       alert(err);
     }
+
+    // Scroll so that new spec comes into view
+    setTimeout(function(){
+      let newSpec = document.getElementById('newSpec');
+      newSpec.scrollIntoView({behavior:"smooth"});
+    }, 500);
   }
 
   const fetchBond = async (
@@ -381,6 +387,12 @@ function Content() {
       console.error("Error occurred while claiming bond " + err);
       alert(err);
     }
+
+    // Scroll down so that new tx comes into view
+    setTimeout(function(){
+      let holder = document.getElementById('burn-tx-holder');
+      holder.scrollIntoView({behavior:"smooth"});
+    }, 500);
   }
 
   async function broadcastRawTx(liquidBurnTx) {
@@ -565,7 +577,7 @@ function Content() {
       <textarea
           type="text"
           id="bond-spec"
-          className={isClaimSubmitted && Object.keys(bondJson).length == 0 ? 'error-input' : ''}
+          className={!validateBondSpec(bondSpec) && isClaimSubmitted ? 'error-input' : ''}
           placeholder="AAJ3g-LB9mTsyVrYMd8J3pvnvnJOmrOHmgSRWOD4X781hQUAAAAAAAAASZqBhUX2uuOfwDtjfypOHmTlkMrBvDpvbXGqRENlTBQ-R6lmA_aRqTBUWGqg4rd1nDvwUGVGPGfpeTCwkJk91GVSTcsH"
           value={bondSpec}
           onChange={(e) =>
