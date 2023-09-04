@@ -345,6 +345,12 @@ function Content() {
       console.error("Error occurred while fetching bond " + err);
       alert(err);
     }
+
+    // Scroll so that new spec comes into view
+    setTimeout(function(){
+      let burnExplained = document.getElementById('burn-explained');
+      burnExplained.scrollIntoView({behavior:"smooth"});
+    }, 200);
   }
 
   const claimBond = async (
