@@ -382,7 +382,7 @@ function Content() {
         double_spend_tx_hex,
         tx1_hex,
         tx2_hex,
-        BigInt(1), // liquid network sats / vbyte (hardcoded for now)
+        BigInt(500), // liquid network milisats / vbyte (hardcoded for now at 0.5 sats/vbyte)
         reward_address,
       );
 
