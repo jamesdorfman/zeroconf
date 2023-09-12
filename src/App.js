@@ -94,7 +94,7 @@ async function fetch_bitcoin_double_spend_utxo(tx_1_hex, tx_2_hex) {
   let matching_tx2_input_idx = tx2_tmp.ins.findIndex((input) => {
     return tx1_outpoints.includes(in_to_outpoint(input));
   });
-  if (matching_tx2_input_idx == undefined) { // todo: is this correct syntax?
+  if (matching_tx2_input_idx === -1) {
     console.error("inputted txs had no matching input"); // todo: return false after this
     return null;
   }
