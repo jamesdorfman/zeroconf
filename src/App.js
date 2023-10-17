@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import init, {
   create_segwit_bond_spec,
+  create_reclaim_pset,
+  finalize_reclaim_pset,
   bond_address,
   inspect_bond,
   create_burn_tx,
@@ -8,6 +10,7 @@ import init, {
 import { detectProvider } from 'marina-provider';
 import { Transaction } from 'bitcoinjs-lib';
 import wally from 'wallycore';
+import * as liquid from 'liquidjs-lib'
 
 import {
   date_to_unix_timestamp,
@@ -208,6 +211,9 @@ async function getPublicKey(address) {
     )
   }
 
+  console.log("Derivation path = ", address.derivationPath);
+  console.log("Master xpub = ", masterXPub);
+
   const bkey = wally.bip32_key_from_base58(masterXPub);
   let children = address.derivationPath.replace('m/', '').split('/');
   if (children.length != 2) {
@@ -256,6 +262,7 @@ function Content() {
   const [isGenerateSubmitted, setIsGenerateSubmitted] = useState(false);
   const [isVerifySubmitted, setIsVerifySubmitted] = useState(false);
   const [isClaimSubmitted, setIsClaimSubmitted] = useState(false);
+  const [isReclaimSubmitted, setIsReclaimSubmitted] = useState(false);
 
   const [bitcoinPubkey, setBitcoinPubkey] = useState('');
   const [burnAmt, setBurnAmt] = useState(''); // TODO: fixme
@@ -273,6 +280,8 @@ function Content() {
   const [liquidBurnTx, setLiquidBurnTx] = useState('');
   const [rewardAddress, setRewardAddress] = useState('');
   const [broadcastStatus, setBroadcastStatus] = useState('');
+
+  const [liquidReclaimTx, setLiquidReclaimTx] = useState('');
 
   const generateBondClick = async (
     bitcoin_pubkey,
@@ -390,7 +399,84 @@ function Content() {
 
       setLiquidBurnTx(lq_burn_tx);
     } catch (err) {
-      console.error("Error occurred while claiming bond " + err);
+      console.error("Error occurred while claiming bond: " + err);
+      alert(err);
+    }
+
+    // Scroll down so that new tx comes into view
+    setTimeout(function(){
+      let holder = document.getElementById('burn-tx-holder');
+      holder.scrollIntoView({behavior:"smooth"});
+    }, 500);
+  }
+
+  const reclaimBond = async (
+    spec,
+  ) => {
+    alert("Warning: reclaim page is NOT currently functioning. The reclaim won't work just yet... (coming soon)");
+    try {
+      await init();
+      const address = await bond_address(spec, NETWORK);
+      const bond_lq_txid = await bond_address_to_txid(address);
+      const bond_lq_vout = await bond_txid_to_vout(bond_lq_txid, address);
+      const bond_lq_raw_tx = await bond_txid_to_tx(bond_lq_txid);
+
+      //if (reward_address.length === 0) { // fetch from marina
+      let next_address = await window.marina.getNextAddress(); // TODO: should this be confidential?
+      let reward_address = next_address.confidentialAddress;
+      //}
+      console.log("Reward address: " + reward_address);
+
+
+      console.log(bond_lq_txid + ":" + bond_lq_vout);
+      console.log(bond_lq_raw_tx);
+      console.log(spec);
+      console.log("500");
+      console.log(reward_address);
+
+      let reclaim_pset = await create_reclaim_pset(
+        bond_lq_txid + ":" + bond_lq_vout,
+        bond_lq_raw_tx,
+        spec,
+        BigInt(500), // liquid network milisats / vbyte (hardcoded for now at 0.5 sats/vbyte)
+        reward_address,
+      );
+
+      console.log(reclaim_pset);
+
+      let pset = liquid.Pset.fromBase64(reclaim_pset);
+      //assert(pset.inputs.length == 1);
+      console.log("First:");
+      console.log(pset);
+      let updater = new liquid.Updater(pset);
+      let deriv = {
+        masterFingerprint: Buffer.from("8efa6885", 'hex'),
+        pubkey: Buffer.from("03d2626719338e478f99d98ff458d404d1112fe3651dfb917d4eece7446e31f468", 'hex'),
+        path  : "m/0/22",
+      }
+      updater.addInBIP32Derivation(0, deriv);
+      pset = updater.pset.toBase64();
+      console.log("Before: ");
+      console.log(pset);
+
+      let signed_reclaim_pset = await window.marina.signTransaction(pset);
+
+      console.log("After: ");
+      console.log(signed_reclaim_pset);
+      console.log(liquid.Pset.fromBase64(signed_reclaim_pset));
+
+      // m/0/22
+
+      let finalized_reclaim_tx = await finalize_reclaim_pset(
+        spec,
+        signed_reclaim_pset,
+      );
+
+      console.log(finalized_reclaim_tx);
+
+      setLiquidReclaimTx(finalized_reclaim_tx);
+    } catch (err) {
+      console.error("Error occurred while reclaiming bond: " + err);
       alert(err);
     }
 
@@ -403,19 +489,21 @@ function Content() {
 
   async function broadcastRawTx(liquidBurnTx) {
     let URL = EXPLORER_URL[NETWORK] + "api/tx";
+    console.log(URL);
     console.log(liquidBurnTx)
     let response = await fetch(URL, {
       method: "POST",
       body: liquidBurnTx,
       mode: "no-cors", // no-cors, *cors, same-origin
     });
-    if (!response.ok) {
+    setBroadcastStatus("Sent to Blockstream explorer API")
+    /*if (!response.ok) {
       console.error("Blockstream explorer API raw tx broadcast failed");
       setBroadcastStatus("Error broadcasting transaction");
-      console.log('Set it');
+      console.log(response);
       console.log(await response.text());
       //setBroadcastStatus(await response.text());
-    }
+    }*/
   }
 
   const getTotalAmt = () => {
@@ -441,6 +529,9 @@ function Content() {
       </div>
       <div className={`${activePage === "claimPage" ? 'activeNav' : ''}`}>
         <button onClick={() => setActivePage("claimPage")}>Burn a Bond</button>
+      </div>
+      <div className={`${activePage === "reclaimPage" ? 'activeNav' : ''}`}>
+        <button onClick={() => setActivePage("reclaimPage")}>Reclaim a Bond</button>
       </div>
     </div>
     <div className={`${activePage === "generatePage" ? '' : 'invisible'} content`}>
@@ -635,6 +726,46 @@ function Content() {
 
         <button class="generate-btn" id="send-claim-tx-btn" onClick={() => {
             broadcastRawTx(liquidBurnTx)
+          }
+        }>Broadcast on Liquid</button>
+
+        <div className={`${broadcastStatus.length === 0 ? 'invisible' : 'visible'}`}
+            id="broadcast-status"><b>Broadcast status:</b> {broadcastStatus}</div>
+      </div>
+    </div>
+
+    <div className={`${activePage === "reclaimPage" ? '' : 'invisible'} content`}>
+      <div id="instructions">
+        <img id="questionmark" src={questionmark}></img>
+        <p>Reclaim a bond that has expired.<br/>
+        Note: your browser's Marina wallet must be the one
+          which created the bond.</p>
+      </div>
+
+      <label for="bitcoin-pubkey">Liquid Bond Spec <div class="tooltip">(?) <span class="tooltiptext">{BOND_SPEC_TOOLTIP}</span></div></label><br/>
+      <textarea
+          type="text"
+          id="bond-spec"
+          className={!validateBondSpec(bondSpec) && isClaimSubmitted ? 'error-input' : ''}
+          placeholder="AAJ3g-LB9mTsyVrYMd8J3pvnvnJOmrOHmgSRWOD4X781hQUAAAAAAAAASZqBhUX2uuOfwDtjfypOHmTlkMrBvDpvbXGqRENlTBQ-R6lmA_aRqTBUWGqg4rd1nDvwUGVGPGfpeTCwkJk91GVSTcsH"
+          value={bondSpec}
+          onChange={(e) =>
+            setBondSpec(e.target.value.trim())
+          }/><br/>
+
+      <button class="generate-btn" id="generate-claim-tx-btn" onClick={() => {
+            setIsReclaimSubmitted(true);
+            if (!validateBondSpec(bondSpec)) return;
+
+            reclaimBond(bondSpec, tx1Hex, tx2Hex, rewardAddress)
+          }
+        }>Generate Transaction</button>
+
+      <div className={`${Object.entries(liquidReclaimTx).length === 0 ? 'invisible' : 'visible'}`} id="reclaim-tx-holder">
+        <p id="reclaim-tx">{liquidReclaimTx}</p>
+
+        <button class="generate-btn" id="send-reclaim-tx-btn" onClick={() => {
+            broadcastRawTx(liquidReclaimTx)
           }
         }>Broadcast on Liquid</button>
 

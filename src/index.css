@@ -55,7 +55,7 @@ code {
 
 #nav {
   display: flex;
-  width: 600px;
+  width: 700px;
   margin: 0 auto;
 }
 
@@ -282,12 +282,12 @@ input, textarea {
 #generate-claim-tx-btn { /* specific to claim page */
   margin-bottom: 30px;
 }
-#burn-tx-holder {
+#burn-tx-holder, #reclaim-tx-holder {
   margin-top: -50px;
   margin-bottom: 30px !important;
   height: auto;
 }
-#send-claim-tx-btn {
+#send-claim-tx-btn, #send-reclaim-tx-btn {
   margin-bottom: 20px !important;
 }
 
@@ -362,7 +362,7 @@ input, textarea {
   font-size: 16px;
 }
 
-#burn-tx-holder {
+#burn-tx-holder, #reclaim-tx-holder {
   width: 90%;
   height: 240px;
   overflow-wrap: anywhere;
@@ -372,14 +372,14 @@ input, textarea {
   justify-content: center;
 }
 
-#burn-tx {
+#burn-tx, #reclaim-tx {
   height: 100px;
   overflow-y: auto;
   padding: 5px;
   border: 1px solid blue;
 }
 
-#burn-tx-holder button {
+#burn-tx-holder button, #reclaim-tx-holder button {
   margin: 0 auto;
   display: block;
 }

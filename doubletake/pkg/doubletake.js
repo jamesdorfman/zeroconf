@@ -372,7 +372,7 @@ export function create_elements_utxo(tx, vout) {
 * - `double_spend_tx`: the Bitcoin tx that was double spent
 * - `tx1_hex`: first double spend Bitcoin tx in hex
 * - `tx2_hex`: second double spend Bitcoin tx in hex
-* - `fee_rate_sat_per_vkb`: the fee rate to use in satoshi per virtual byte
+* - `fee_rate_sat_per_kvb`: the fee rate to use in satoshi per kilo virtual byte
 * - `reward_address`: the reward Elements/Liquid address where to send the reward
 *
 * Output: an Elements/Liquid transaction in hex
@@ -383,11 +383,11 @@ export function create_elements_utxo(tx, vout) {
 * @param {string} double_spend_tx
 * @param {string} tx1_hex
 * @param {string} tx2_hex
-* @param {bigint} fee_rate_sat_per_vkb
+* @param {bigint} fee_rate_sat_per_kvb
 * @param {string} reward_address
 * @returns {string}
 */
-export function create_burn_tx(bond_utxo, bond_tx, spec_base64, double_spend_utxo, double_spend_tx, tx1_hex, tx2_hex, fee_rate_sat_per_vkb, reward_address) {
+export function create_burn_tx(bond_utxo, bond_tx, spec_base64, double_spend_utxo, double_spend_tx, tx1_hex, tx2_hex, fee_rate_sat_per_kvb, reward_address) {
     let deferred10_0;
     let deferred10_1;
     try {
@@ -408,7 +408,7 @@ export function create_burn_tx(bond_utxo, bond_tx, spec_base64, double_spend_utx
         const len6 = WASM_VECTOR_LEN;
         const ptr7 = passStringToWasm0(reward_address, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len7 = WASM_VECTOR_LEN;
-        wasm.create_burn_tx(retptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4, ptr5, len5, ptr6, len6, fee_rate_sat_per_vkb, ptr7, len7);
+        wasm.create_burn_tx(retptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4, ptr5, len5, ptr6, len6, fee_rate_sat_per_kvb, ptr7, len7);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         var r2 = getInt32Memory0()[retptr / 4 + 2];
@@ -435,18 +435,18 @@ export function create_burn_tx(bond_utxo, bond_tx, spec_base64, double_spend_utx
 * - `bond_utxo`: the Elements/Liquid UTXO outpoint, as `<txid>:<vout>`
 * - `bond_tx`: the raw hex bond transaction
 * - `spec_base64`: bond spec encoded as base64
-* - `fee_rate_sat_per_vkb`: the fee rate to use in satoshi per virtual kilobyte
+* - `fee_rate_sat_per_kvb the fee rate to use in satoshi per kilo birtual byte
 * - `claim_address`: the claim Elements/Liquid address where to send the funds
 *
 * Output: an Elements/Liquid transaction in hex
 * @param {string} bond_utxo
 * @param {string} bond_tx
 * @param {string} spec_base64
-* @param {bigint} fee_rate_sat_per_vkb
+* @param {bigint} fee_rate_sat_per_kvb
 * @param {string} claim_address
 * @returns {string}
 */
-export function create_unsigned_reclaim_tx(bond_utxo, bond_tx, spec_base64, fee_rate_sat_per_vkb, claim_address) {
+export function create_unsigned_reclaim_tx(bond_utxo, bond_tx, spec_base64, fee_rate_sat_per_kvb, claim_address) {
     let deferred6_0;
     let deferred6_1;
     try {
@@ -459,7 +459,7 @@ export function create_unsigned_reclaim_tx(bond_utxo, bond_tx, spec_base64, fee_
         const len2 = WASM_VECTOR_LEN;
         const ptr3 = passStringToWasm0(claim_address, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len3 = WASM_VECTOR_LEN;
-        wasm.create_unsigned_reclaim_tx(retptr, ptr0, len0, ptr1, len1, ptr2, len2, fee_rate_sat_per_vkb, ptr3, len3);
+        wasm.create_unsigned_reclaim_tx(retptr, ptr0, len0, ptr1, len1, ptr2, len2, fee_rate_sat_per_kvb, ptr3, len3);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         var r2 = getInt32Memory0()[retptr / 4 + 2];
@@ -531,18 +531,18 @@ export function finalize_ecdsa_reclaim_tx(spec_base64, reclaim_tx, signature) {
 * - `bond_utxo`: the Elements/Liquid UTXO outpoint, as `<txid>:<vout>`
 * - `bond_tx`: the raw hex bond transaction
 * - `spec_base64`: bond spec encoded as base64
-* - `fee_rate_sat_per_vb`: the fee rate to use in satoshi per virtual byte
+* - `fee_rate_sat_per_kvb`: the fee rate to use in satoshi per kilo virtual byte
 * - `claim_address`: the claim Elements/Liquid address where to send the funds
 *
 * Output: a PartiallySignedElementsTransaction in base64
 * @param {string} bond_utxo
 * @param {string} bond_tx
 * @param {string} spec_base64
-* @param {bigint} fee_rate_sat_per_vb
+* @param {bigint} fee_rate_sat_per_kvb
 * @param {string} claim_address
 * @returns {string}
 */
-export function create_reclaim_pset(bond_utxo, bond_tx, spec_base64, fee_rate_sat_per_vb, claim_address) {
+export function create_reclaim_pset(bond_utxo, bond_tx, spec_base64, fee_rate_sat_per_kvb, claim_address) {
     let deferred6_0;
     let deferred6_1;
     try {
@@ -555,7 +555,7 @@ export function create_reclaim_pset(bond_utxo, bond_tx, spec_base64, fee_rate_sa
         const len2 = WASM_VECTOR_LEN;
         const ptr3 = passStringToWasm0(claim_address, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len3 = WASM_VECTOR_LEN;
-        wasm.create_reclaim_pset(retptr, ptr0, len0, ptr1, len1, ptr2, len2, fee_rate_sat_per_vb, ptr3, len3);
+        wasm.create_reclaim_pset(retptr, ptr0, len0, ptr1, len1, ptr2, len2, fee_rate_sat_per_kvb, ptr3, len3);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         var r2 = getInt32Memory0()[retptr / 4 + 2];
@@ -623,7 +623,7 @@ export function finalize_reclaim_pset(spec_base64, reclaim_pset) {
 * - `bond_utxo`: the Elements/Liquid UTXO outpoint, as `<txid>:<vout>`
 * - `bond_tx`: the raw hex bond transaction
 * - `spec_base64`: bond spec encoded as base64
-* - `fee_rate_sat_per_vb`: the fee rate to use in satoshi per virtual byte
+* - `fee_rate_sat_per_kvb`: the fee rate to use in satoshi per kilo virtual byte
 * - `claim_address`: the claim Elements/Liquid address where to send the funds
 * - `reclaim_sk`: secret key of the reclaim pubkey in either WIF or hex
 *
@@ -631,12 +631,12 @@ export function finalize_reclaim_pset(spec_base64, reclaim_pset) {
 * @param {string} bond_utxo
 * @param {string} bond_tx
 * @param {string} spec_base64
-* @param {bigint} fee_rate_sat_per_vb
+* @param {bigint} fee_rate_sat_per_kvb
 * @param {string} claim_address
 * @param {string} reclaim_sk
 * @returns {string}
 */
-export function create_signed_ecdsa_reclaim_tx(bond_utxo, bond_tx, spec_base64, fee_rate_sat_per_vb, claim_address, reclaim_sk) {
+export function create_signed_ecdsa_reclaim_tx(bond_utxo, bond_tx, spec_base64, fee_rate_sat_per_kvb, claim_address, reclaim_sk) {
     let deferred7_0;
     let deferred7_1;
     try {
@@ -651,7 +651,7 @@ export function create_signed_ecdsa_reclaim_tx(bond_utxo, bond_tx, spec_base64, 
         const len3 = WASM_VECTOR_LEN;
         const ptr4 = passStringToWasm0(reclaim_sk, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len4 = WASM_VECTOR_LEN;
-        wasm.create_signed_ecdsa_reclaim_tx(retptr, ptr0, len0, ptr1, len1, ptr2, len2, fee_rate_sat_per_vb, ptr3, len3, ptr4, len4);
+        wasm.create_signed_ecdsa_reclaim_tx(retptr, ptr0, len0, ptr1, len1, ptr2, len2, fee_rate_sat_per_kvb, ptr3, len3, ptr4, len4);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         var r2 = getInt32Memory0()[retptr / 4 + 2];

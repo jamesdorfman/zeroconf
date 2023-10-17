@@ -88,7 +88,7 @@ export function create_elements_utxo(tx: string, vout: number): any;
 * - `double_spend_tx`: the Bitcoin tx that was double spent
 * - `tx1_hex`: first double spend Bitcoin tx in hex
 * - `tx2_hex`: second double spend Bitcoin tx in hex
-* - `fee_rate_sat_per_vkb`: the fee rate to use in satoshi per virtual byte
+* - `fee_rate_sat_per_kvb`: the fee rate to use in satoshi per kilo virtual byte
 * - `reward_address`: the reward Elements/Liquid address where to send the reward
 *
 * Output: an Elements/Liquid transaction in hex
@@ -99,11 +99,11 @@ export function create_elements_utxo(tx: string, vout: number): any;
 * @param {string} double_spend_tx
 * @param {string} tx1_hex
 * @param {string} tx2_hex
-* @param {bigint} fee_rate_sat_per_vkb
+* @param {bigint} fee_rate_sat_per_kvb
 * @param {string} reward_address
 * @returns {string}
 */
-export function create_burn_tx(bond_utxo: string, bond_tx: string, spec_base64: string, double_spend_utxo: string, double_spend_tx: string, tx1_hex: string, tx2_hex: string, fee_rate_sat_per_vkb: bigint, reward_address: string): string;
+export function create_burn_tx(bond_utxo: string, bond_tx: string, spec_base64: string, double_spend_utxo: string, double_spend_tx: string, tx1_hex: string, tx2_hex: string, fee_rate_sat_per_kvb: bigint, reward_address: string): string;
 /**
 * Create an unsigned transaction to reclaim a bond after it has expired.
 *
@@ -111,18 +111,18 @@ export function create_burn_tx(bond_utxo: string, bond_tx: string, spec_base64: 
 * - `bond_utxo`: the Elements/Liquid UTXO outpoint, as `<txid>:<vout>`
 * - `bond_tx`: the raw hex bond transaction
 * - `spec_base64`: bond spec encoded as base64
-* - `fee_rate_sat_per_vkb`: the fee rate to use in satoshi per virtual kilobyte
+* - `fee_rate_sat_per_kvb the fee rate to use in satoshi per kilo birtual byte
 * - `claim_address`: the claim Elements/Liquid address where to send the funds
 *
 * Output: an Elements/Liquid transaction in hex
 * @param {string} bond_utxo
 * @param {string} bond_tx
 * @param {string} spec_base64
-* @param {bigint} fee_rate_sat_per_vkb
+* @param {bigint} fee_rate_sat_per_kvb
 * @param {string} claim_address
 * @returns {string}
 */
-export function create_unsigned_reclaim_tx(bond_utxo: string, bond_tx: string, spec_base64: string, fee_rate_sat_per_vkb: bigint, claim_address: string): string;
+export function create_unsigned_reclaim_tx(bond_utxo: string, bond_tx: string, spec_base64: string, fee_rate_sat_per_kvb: bigint, claim_address: string): string;
 /**
 * Finalize a reclaim transaction with an ECDSA signature.
 *
@@ -145,18 +145,18 @@ export function finalize_ecdsa_reclaim_tx(spec_base64: string, reclaim_tx: strin
 * - `bond_utxo`: the Elements/Liquid UTXO outpoint, as `<txid>:<vout>`
 * - `bond_tx`: the raw hex bond transaction
 * - `spec_base64`: bond spec encoded as base64
-* - `fee_rate_sat_per_vb`: the fee rate to use in satoshi per virtual byte
+* - `fee_rate_sat_per_kvb`: the fee rate to use in satoshi per kilo virtual byte
 * - `claim_address`: the claim Elements/Liquid address where to send the funds
 *
 * Output: a PartiallySignedElementsTransaction in base64
 * @param {string} bond_utxo
 * @param {string} bond_tx
 * @param {string} spec_base64
-* @param {bigint} fee_rate_sat_per_vb
+* @param {bigint} fee_rate_sat_per_kvb
 * @param {string} claim_address
 * @returns {string}
 */
-export function create_reclaim_pset(bond_utxo: string, bond_tx: string, spec_base64: string, fee_rate_sat_per_vb: bigint, claim_address: string): string;
+export function create_reclaim_pset(bond_utxo: string, bond_tx: string, spec_base64: string, fee_rate_sat_per_kvb: bigint, claim_address: string): string;
 /**
 * Finalize a reclaim PSET.
 *
@@ -177,7 +177,7 @@ export function finalize_reclaim_pset(spec_base64: string, reclaim_pset: string)
 * - `bond_utxo`: the Elements/Liquid UTXO outpoint, as `<txid>:<vout>`
 * - `bond_tx`: the raw hex bond transaction
 * - `spec_base64`: bond spec encoded as base64
-* - `fee_rate_sat_per_vb`: the fee rate to use in satoshi per virtual byte
+* - `fee_rate_sat_per_kvb`: the fee rate to use in satoshi per kilo virtual byte
 * - `claim_address`: the claim Elements/Liquid address where to send the funds
 * - `reclaim_sk`: secret key of the reclaim pubkey in either WIF or hex
 *
@@ -185,12 +185,12 @@ export function finalize_reclaim_pset(spec_base64: string, reclaim_pset: string)
 * @param {string} bond_utxo
 * @param {string} bond_tx
 * @param {string} spec_base64
-* @param {bigint} fee_rate_sat_per_vb
+* @param {bigint} fee_rate_sat_per_kvb
 * @param {string} claim_address
 * @param {string} reclaim_sk
 * @returns {string}
 */
-export function create_signed_ecdsa_reclaim_tx(bond_utxo: string, bond_tx: string, spec_base64: string, fee_rate_sat_per_vb: bigint, claim_address: string, reclaim_sk: string): string;
+export function create_signed_ecdsa_reclaim_tx(bond_utxo: string, bond_tx: string, spec_base64: string, fee_rate_sat_per_kvb: bigint, claim_address: string, reclaim_sk: string): string;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
