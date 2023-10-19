@@ -413,7 +413,6 @@ function Content() {
   const reclaimBond = async (
     spec,
   ) => {
-    alert("Warning: reclaim page is NOT currently functioning. The reclaim won't work just yet... (coming soon)");
     try {
       await init();
       const address = await bond_address(spec, NETWORK);
@@ -421,18 +420,14 @@ function Content() {
       const bond_lq_vout = await bond_txid_to_vout(bond_lq_txid, address);
       const bond_lq_raw_tx = await bond_txid_to_tx(bond_lq_txid);
 
-      //if (reward_address.length === 0) { // fetch from marina
+      const bond_map = inspect_bond(
+        spec
+      );
+      const bond_json = Object.fromEntries(bond_map);
+
       let next_address = await window.marina.getNextAddress(); // TODO: should this be confidential?
       let reward_address = next_address.confidentialAddress;
-      //}
       console.log("Reward address: " + reward_address);
-
-
-      console.log(bond_lq_txid + ":" + bond_lq_vout);
-      console.log(bond_lq_raw_tx);
-      console.log(spec);
-      console.log("500");
-      console.log(reward_address);
 
       let reclaim_pset = await create_reclaim_pset(
         bond_lq_txid + ":" + bond_lq_vout,
@@ -442,37 +437,29 @@ function Content() {
         reward_address,
       );
 
-      console.log(reclaim_pset);
-
       let pset = liquid.Pset.fromBase64(reclaim_pset);
-      //assert(pset.inputs.length == 1);
-      console.log("First:");
+      // it seems that `fromBase64` decodes the input `finalScriptWitness` as a single 00 byte
+      // Might be a compatibility problem between wally and liquidjs-lib
+      pset.inputs[0].finalScriptWitness = Buffer.alloc(0); // fix the compatibility problem
       console.log(pset);
       let updater = new liquid.Updater(pset);
       let deriv = {
-        masterFingerprint: Buffer.from("8efa6885", 'hex'),
-        pubkey: Buffer.from("03d2626719338e478f99d98ff458d404d1112fe3651dfb917d4eece7446e31f468", 'hex'),
-        path  : "m/0/22",
-      }
+        masterFingerprint: Buffer.from("8efa6885", 'hex'), // ignored
+        pubkey: Buffer.from(bond_json.reclaim_pubkey, 'hex'),
+        path  : "m/0/73", // ignored
+      };
+      console.log(deriv);
       updater.addInBIP32Derivation(0, deriv);
       pset = updater.pset.toBase64();
-      console.log("Before: ");
-      console.log(pset);
+      console.log(pset)
 
       let signed_reclaim_pset = await window.marina.signTransaction(pset);
-
-      console.log("After: ");
       console.log(signed_reclaim_pset);
-      console.log(liquid.Pset.fromBase64(signed_reclaim_pset));
-
-      // m/0/22
 
       let finalized_reclaim_tx = await finalize_reclaim_pset(
         spec,
         signed_reclaim_pset,
       );
-
-      console.log(finalized_reclaim_tx);
 
       setLiquidReclaimTx(finalized_reclaim_tx);
     } catch (err) {
@@ -517,7 +504,7 @@ function Content() {
       <h1>zeroconf.me</h1>
       <h3>A (beta) project by <a href="http://twitter.com/james_dev_123">James Dorfman</a> and <a href="https://roose.io/">Steven Roose</a></h3>
       <h4>Disclaimer: only currently working on Liquid testnet and with Google Chrome</h4>
-      <h2>Show users they can safely accept zero-conf transactions from your Bitcoin public key</h2>
+      <h2>Show users they can safely accept zero-conf segwit transactions from your Bitcoin public key</h2>
       <h2>For more details, see <a href="https://roose.io/blog/bitcoin-double-spend-prevention-bonds-liquid/">this blog post</a></h2>
     </div>
     <div id="nav">
