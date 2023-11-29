@@ -358,6 +358,8 @@ function Content() {
     tx2_hex,
     reward_address,
   ) => {
+    await window.marina.enable();
+
     try {
       await init();
       const address = await bond_address(spec, NETWORK);
@@ -403,6 +405,8 @@ function Content() {
   const reclaimBond = async (
     spec,
   ) => {
+    await window.marina.enable();
+
     try {
       await init();
       const address = await bond_address(spec, NETWORK);
@@ -427,49 +431,26 @@ function Content() {
         reward_address,
       );
 
-
       let pset = liquid.Pset.fromBase64(reclaim_pset);
       // it seems that `fromBase64` decodes the input `finalScriptWitness` as a single 00 byte
       // Might be a compatibility problem between wally and liquidjs-lib
       pset.inputs[0].finalScriptWitness = Buffer.alloc(0); // fix the compatibility problem
-      let seq_before_signing = pset.inputs[0].sequence; // Marina signing will delete the sequence number (bug: talk to tiero)
-      console.log(pset);
       let updater = new liquid.Updater(pset);
       let deriv = {
         masterFingerprint: Buffer.from("8efa6885", 'hex'), // ignored
         pubkey: Buffer.from(bond_json.reclaim_pubkey, 'hex'),
         path  : "m/0/73", // ignored
       };
-      console.log(deriv);
       updater.addInBIP32Derivation(0, deriv);
 
-      seq_before_signing = pset.inputs[0].sequence;
-      console.log("Seq beforer signing: ", seq_before_signing);
       pset = updater.pset.toBase64();
-
-
       console.log(pset);
-      console.log("B");
 
       let signed_reclaim_pset = await window.marina.signTransaction(pset);
-      let new_pset = liquid.Pset.fromBase64(signed_reclaim_pset);
-      console.log("Seq after signing: ", new_pset.inputs[0].sequence);
-
-      // Change sequence to zero (since marina tweaked it...)
-      let tmp_pset = liquid.Pset.fromBase64(signed_reclaim_pset);
-      // it seems that `fromBase64` decodes the input `finalScriptWitness` as a single 00 byte
-      // Might be a compatibility problem between wally and liquidjs-lib
-      tmp_pset.inputs[0].finalScriptWitness = Buffer.alloc(0); // fix the compatibility problem
-      console.log("Setting to: ", seq_before_signing);
-      tmp_pset.inputs[0].sequence = seq_before_signing; // marina signing deletes the sequence number... put it back
-      console.log("Set the sequence... ", tmp_pset.inputs[0].sequence);
-      let final_pset = tmp_pset.toBase64();
-      let x = liquid.Pset.fromBase64(final_pset);
-      console.log("re-coded: ", x.inputs[0].sequence);
 
       let finalized_reclaim_tx = await finalize_reclaim_pset(
         spec,
-        final_pset,
+        signed_reclaim_pset,
       );
 
       setLiquidReclaimTx(finalized_reclaim_tx);
