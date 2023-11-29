@@ -114,7 +114,6 @@ async function fetch_bitcoin_double_spend_utxo(tx_1_hex, tx_2_hex) {
   } else {
     console.error('Error occured when fetching transaction');
   }
-  console.log(hex);
 
   return [hex, txid, vout];
 }
@@ -122,7 +121,6 @@ async function fetch_bitcoin_double_spend_utxo(tx_1_hex, tx_2_hex) {
 async function bond_address_to_txid(address) {
   let URL = EXPLORER_URL[NETWORK] + "api/address/" + address + "/txs";
   let response = await fetch(URL);
-  console.log(response);
   if (response.ok) {
     let json = await response.json();
     if (json.length != 1) {
@@ -154,14 +152,11 @@ async function bond_txid_to_vout(txid, address) {
   let response = await fetch(URL);
   if (response.ok) {
     let json = await response.json();
-    console.log(json);
     let vouts = json['vout'];
     if (vouts.length != 3) {
       // 1 for burn, 1 for reward, 1 for fee
       return null;
     }
-    console.log(vouts);
-    console.log(address);
     let vout = vouts.findIndex((vout) => vout['scriptpubkey_address'] == address);
     if (vout == -1) { // todo: double check this syntax
       console.error("Unable to find bond vout");
@@ -176,7 +171,6 @@ async function bond_txid_to_utxo(txid, address) {
   let response = await fetch(URL);
   if (response.ok) {
     let json = await response.json();
-    console.log(json);
     let vouts = json['vout'];
     if (vouts.length != 3) {
       // 1 for burn, 1 for reward, 1 for fee
@@ -223,10 +217,6 @@ async function getPublicKey(address) {
   var key1 = wally.bip32_key_from_parent(bkey, Number(children[0]), wally.BIP32_FLAG_KEY_PUBLIC);
   var key2 = wally.bip32_key_from_parent(key1, Number(children[1]), wally.BIP32_FLAG_KEY_PUBLIC);
   let pubkey = wally.bip32_key_get_pub_key(key2);
-
-  console.log(masterXPub);
-  console.log(address.derivationPath);
-  console.log(toHexString(pubkey))
 
   window.marina.getCoins().then((x) => console.log(x));
   console.log(window.marina.getBalances())
@@ -437,10 +427,12 @@ function Content() {
         reward_address,
       );
 
+
       let pset = liquid.Pset.fromBase64(reclaim_pset);
       // it seems that `fromBase64` decodes the input `finalScriptWitness` as a single 00 byte
       // Might be a compatibility problem between wally and liquidjs-lib
       pset.inputs[0].finalScriptWitness = Buffer.alloc(0); // fix the compatibility problem
+      let seq_before_signing = pset.inputs[0].sequence; // Marina signing will delete the sequence number (bug: talk to tiero)
       console.log(pset);
       let updater = new liquid.Updater(pset);
       let deriv = {
@@ -450,15 +442,34 @@ function Content() {
       };
       console.log(deriv);
       updater.addInBIP32Derivation(0, deriv);
+
+      seq_before_signing = pset.inputs[0].sequence;
+      console.log("Seq beforer signing: ", seq_before_signing);
       pset = updater.pset.toBase64();
-      console.log(pset)
+
+
+      console.log(pset);
+      console.log("B");
 
       let signed_reclaim_pset = await window.marina.signTransaction(pset);
-      console.log(signed_reclaim_pset);
+      let new_pset = liquid.Pset.fromBase64(signed_reclaim_pset);
+      console.log("Seq after signing: ", new_pset.inputs[0].sequence);
+
+      // Change sequence to zero (since marina tweaked it...)
+      let tmp_pset = liquid.Pset.fromBase64(signed_reclaim_pset);
+      // it seems that `fromBase64` decodes the input `finalScriptWitness` as a single 00 byte
+      // Might be a compatibility problem between wally and liquidjs-lib
+      tmp_pset.inputs[0].finalScriptWitness = Buffer.alloc(0); // fix the compatibility problem
+      console.log("Setting to: ", seq_before_signing);
+      tmp_pset.inputs[0].sequence = seq_before_signing; // marina signing deletes the sequence number... put it back
+      console.log("Set the sequence... ", tmp_pset.inputs[0].sequence);
+      let final_pset = tmp_pset.toBase64();
+      let x = liquid.Pset.fromBase64(final_pset);
+      console.log("re-coded: ", x.inputs[0].sequence);
 
       let finalized_reclaim_tx = await finalize_reclaim_pset(
         spec,
-        signed_reclaim_pset,
+        final_pset,
       );
 
       setLiquidReclaimTx(finalized_reclaim_tx);
